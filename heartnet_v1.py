@@ -31,7 +31,7 @@ from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
 
 def branch(input_tensor,num_filt,kernel_size,random_seed,padding,bias,maxnorm,l2_reg,
-           eps,bn_momentum,activation_function,dropout_rate,subsam):
+           eps,bn_momentum,activation_function,dropout_rate,subsam,trainable):
 
     num_filt1, num_filt2 = num_filt
     t = Conv1D(num_filt1, kernel_size=kernel_size,
@@ -108,13 +108,13 @@ def heartnet(load_path,activation_function='relu', bn_momentum=0.99, bias=False,
                     padding='same',trainable=FIR_train)(input)
 
     t1 = branch(input1,num_filt,kernel_size,random_seed,padding,bias,maxnorm,l2_reg,
-           eps,bn_momentum,activation_function,dropout_rate,subsam)
+           eps,bn_momentum,activation_function,dropout_rate,subsam,trainable)
     t2 = branch(input2,num_filt,kernel_size,random_seed,padding,bias,maxnorm,l2_reg,
-           eps,bn_momentum,activation_function,dropout_rate,subsam)
+           eps,bn_momentum,activation_function,dropout_rate,subsam,trainable)
     t3 = branch(input3,num_filt,kernel_size,random_seed,padding,bias,maxnorm,l2_reg,
-           eps,bn_momentum,activation_function,dropout_rate,subsam)
+           eps,bn_momentum,activation_function,dropout_rate,subsam,trainable)
     t4 = branch(input4,num_filt,kernel_size,random_seed,padding,bias,maxnorm,l2_reg,
-           eps,bn_momentum,activation_function,dropout_rate,subsam)
+           eps,bn_momentum,activation_function,dropout_rate,subsam,trainable)
 
     # t1 = Conv1D(num_filt1, kernel_size=kernel_size,
     #             kernel_initializer=initializers.he_normal(seed=random_seed),
