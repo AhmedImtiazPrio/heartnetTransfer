@@ -221,6 +221,9 @@ def heartnet(load_path,activation_function='relu', bn_momentum=0.99, bias=False,
     if load_path:  # If path for loading model was specified
         model.load_weights(filepath=load_path, by_name=False)
 
+    adam = Adam(lr=lr, decay=lr_decay)
+    model.compile(optimizer=adam, loss='binary_crossentropy', metrics=['accuracy'])
+
     return model
 
 
@@ -476,9 +479,7 @@ if __name__ == '__main__':
                          eps, kernel_size, l2_reg, l2_reg_dense, lr, lr_decay, maxnorm,
                          padding, random_seed, subsam, num_filt, num_dense, FIR_train)
 
-        adam = Adam(lr=lr, decay=lr_decay)
-        model.compile(optimizer=adam, loss='binary_crossentropy', metrics=['accuracy'])
-        
+
         model.summary()
         plot_model(model, to_file='model.png', show_shapes=True)
 
