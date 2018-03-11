@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
     load_path='/media/taufiq/Data/heart_sound/interspeech_compare/weights.0148-0.8902.hdf5'
     lr = 0.00001
-    num_dense = 20
+    num_dense = 34
     epochs = 250
     batch_size = 128
     dropout_rate = 0.
@@ -73,7 +73,7 @@ if __name__ == '__main__':
     y_val = to_categorical(y_val,num_classes=3)
 
     ### Callbacks ###
-    csv_logger = CSVLogger('training.csv')
+    csv_logger = CSVLogger(log_dir + log_name + '/training.csv')
     modelcheckpnt = ModelCheckpoint(filepath=checkpoint_name,
                                     monitor='val_acc', save_best_only=True, mode='max')
     tensbd = TensorBoard(log_dir=log_dir + log_name,
@@ -91,7 +91,7 @@ if __name__ == '__main__':
               epochs=epochs,
               verbose=2,
               shuffle=True,
-              callbacks=[modelcheckpnt, csv_logger],
+              callbacks=[modelcheckpnt, tensbd, csv_logger],
               validation_data=(x_val,y_val))
 
     res_thresh =.5
