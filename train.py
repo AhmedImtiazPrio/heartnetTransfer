@@ -97,7 +97,7 @@ if __name__ == '__main__':
     epochs = 1
     batch_size = 128
     dropout_rate = 0.
-    trainable = True
+    trainable = False
     res_thresh = .5
     model = heartnet_transfer(load_path=load_path,lr=lr,num_dense=num_dense,trainable=trainable,dropout_rate=dropout_rate)
     plot_model(model,"model.png",show_layer_names=True,show_shapes=True)
