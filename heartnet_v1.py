@@ -214,7 +214,7 @@ def heartnet(load_path,activation_function='relu', bn_momentum=0.99, bias=False,
                    kernel_regularizer=l2(l2_reg_dense))(merged)
     # ~ merged = BatchNormalization(epsilon=eps,momentum=bn_momentum,axis=-1) (merged)
     merged = Dropout(rate=dropout_rate_dense, seed=random_seed)(merged)
-    merged = Dense(1, activation='sigmoid')(merged)
+    merged = Dense(2, activation='sigmoid')(merged)
 
     model = Model(inputs=input, outputs=merged)
 
@@ -222,7 +222,7 @@ def heartnet(load_path,activation_function='relu', bn_momentum=0.99, bias=False,
         model.load_weights(filepath=load_path, by_name=False)
 
     adam = Adam(lr=lr, decay=lr_decay)
-    model.compile(optimizer=adam, loss='binary_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=adam, loss='categorical_crossentropy', metrics=['accuracy'])
 
     return model
 
