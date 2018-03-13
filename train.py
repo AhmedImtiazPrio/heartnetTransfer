@@ -191,9 +191,9 @@ def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_comp
     model = heartnet(load_path=load_path,FIR_train=False,trainable=trainable)
     plot_model(model,'before.png',show_shapes=True,show_layer_names=True)
     x = model.layers[-4].output
-    x = Dense(num_dense1,activation='relu') (x)
+    x = Dense(num_dense1,activation='relu',kernel_initializer=initializers.he_uniform(seed=1)) (x)
     x = Dropout(rate=dropout_rate,seed=1) (x)
-    x = Dense(num_dense2, activation='relu')(x)
+    x = Dense(num_dense2, activation='relu',kernel_initializer=initializers.he_normal(seed=1))(x)
     x = Dropout(rate=dropout_rate, seed=1)(x)
     output = Dense(3,activation='softmax')(x)
     model = Model(inputs=model.input,outputs=output)
@@ -265,7 +265,7 @@ if __name__ == '__main__':
     load_path='/media/taufiq/Data/heart_sound/models/fold1_noFIR 2018-03-13 03:55:23.240321/weights.0169-0.8798.hdf5'
     # lr = 0.00001
     lr = 0.1
-    num_dense1 = 650 #34,120,167,239,1239
+    num_dense1 = 788 #34,120,167,239,1239,650
     num_dense2 = 121 #121,
     epochs = 100
     batch_size = 256
