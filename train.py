@@ -187,16 +187,19 @@ import argparse
 #     return model
 
 
-def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_compare/weights.0148-0.8902.hdf5',lr=0.0012843784,lr_decay=0.0001132885,num_dense=20,trainable=False,dropout_rate=0.):
+def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_compare/weights.0148-0.8902.hdf5',lr=0.0012843784,lr_decay=0.0001132885,num_dense1=20,num_dense2=20,trainable=False,dropout_rate=0.):
     model = heartnet(load_path=load_path,FIR_train=False,trainable=trainable)
     plot_model(model,'before.png',show_shapes=True,show_layer_names=True)
     x = model.layers[-4].output
-    x = Dense(num_dense,activation='relu') (x)
+    x = Dense(num_dense1,activation='relu') (x)
     x = Dropout(rate=dropout_rate,seed=1) (x)
+    x = Dense(num_dense2, activation='relu')(x)
+    x = Dropout(rate=dropout_rate, seed=1)(x)
     output = Dense(3,activation='softmax')(x)
     model = Model(inputs=model.input,outputs=output)
     plot_model(model, 'after.png',show_shapes=True,show_layer_names=True)
-    model.load_weights(load_path,by_name=True)
+    if load_path:
+        model.load_weights(load_path,by_name=True)
     sgd = SGD(lr=lr)
     model.compile(optimizer=sgd, loss='categorical_crossentropy', metrics=['accuracy'])
     return model
@@ -260,14 +263,16 @@ if __name__ == '__main__':
     ##### Load Model ######
 
     load_path='/media/taufiq/Data/heart_sound/models/fold1_noFIR 2018-03-13 03:55:23.240321/weights.0169-0.8798.hdf5'
-    lr = 0.00001
-    num_dense = 34
+    # lr = 0.00001
+    lr = 0.1
+    num_dense1 = 650 #34,120,167,239,1239
+    num_dense2 = 121 #121,
     epochs = 100
     batch_size = 256
-    dropout_rate = 0.5
+    dropout_rate = 0.
     trainable = True
-    res_thresh = .5
-    model = heartnet_transfer(load_path=load_path,lr=lr,num_dense=num_dense,trainable=trainable,dropout_rate=dropout_rate)
+    # res_thresh = .5
+    model = heartnet_transfer(load_path=load_path,lr=lr,num_dense1=num_dense1,num_dense2=num_dense2,trainable=trainable,dropout_rate=dropout_rate)
     plot_model(model,"model.png",show_layer_names=True,show_shapes=True)
 
     ###### Load Data ######
@@ -298,7 +303,8 @@ if __name__ == '__main__':
                          # embeddings_data=x_val,
                          # embeddings_metadata=metadata_file,
                          write_images=False)
-
+    print(np.sum(y_train,axis=-2))
+    print(np.sum(y_val, axis=-2))
     ### Train ###
     model.fit(x_train,y_train,
               batch_size=batch_size,
