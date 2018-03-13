@@ -185,7 +185,12 @@ import argparse
 #     model.compile(optimizer=adam, loss='categorical_crossentropy', metrics=['accuracy'])
 #
 #     return model
-
+def compute_weight(Y, classes):
+    num_samples = np.float32(len(Y))
+    n_classes = np.float32(len(classes))
+    num_bin = np.sum(Y,axis=-2)
+    class_weights = {i: (num_samples / (n_classes * num_bin[i])) for i in range(n_classes)}
+    return class_weights
 
 def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_compare/weights.0148-0.8902.hdf5',lr=0.0012843784,lr_decay=0.0001132885,num_dense1=20,num_dense2=20,trainable=False,dropout_rate=0.):
     model = heartnet(load_path=load_path,FIR_train=False,trainable=trainable)
@@ -265,12 +270,14 @@ if __name__ == '__main__':
     load_path='/media/taufiq/Data/heart_sound/models/fold1_noFIR 2018-03-13 03:55:23.240321/weights.0169-0.8798.hdf5'
     # lr = 0.00001
     lr = 0.1
-    num_dense1 = 788 #34,120,167,239,1239,650
-    num_dense2 = 121 #121,
+    num_dense1 = 234 #34,120,167,239,1239,650,788
+    num_dense2 = 220 #121,
     epochs = 100
     batch_size = 256
     dropout_rate = 0.
     trainable = True
+    addweights = True
+
     # res_thresh = .5
     model = heartnet_transfer(load_path=load_path,lr=lr,num_dense1=num_dense1,num_dense2=num_dense2,trainable=trainable,dropout_rate=dropout_rate)
     plot_model(model,"model.png",show_layer_names=True,show_shapes=True)
@@ -306,11 +313,14 @@ if __name__ == '__main__':
     print(np.sum(y_train,axis=-2))
     print(np.sum(y_val, axis=-2))
     ### Train ###
-    model.fit(x_train,y_train,
+    class_weights=compute_weight(y_train,range(3))
+    if addweights:
+        model.fit(x_train,y_train,
               batch_size=batch_size,
               epochs=epochs,
               verbose=2,
               shuffle=True,
+              class_weight=class_weights,
               callbacks=[modelcheckpnt,
                          log_UAR(x_val, y_val, val_parts),
                          tensbd, csv_logger],
