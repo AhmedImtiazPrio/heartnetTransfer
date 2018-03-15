@@ -270,8 +270,8 @@ if __name__ == '__main__':
     load_path='/media/taufiq/Data/heart_sound/models/fold1_noFIR 2018-03-13 03:55:23.240321/weights.0169-0.8798.hdf5'
     # lr = 0.00001
     lr = 0.1
-    num_dense1 = 234 #34,120,167,239,1239,650,788
-    num_dense2 = 220 #121,
+    num_dense1 = 734 #34,120,167,239,1239,650,788,422,598
+    num_dense2 = 20 #121,
     epochs = 100
     batch_size = 256
     dropout_rate = 0.
@@ -314,6 +314,7 @@ if __name__ == '__main__':
     print(np.sum(y_val, axis=-2))
     ### Train ###
     class_weights=compute_weight(y_train,range(3))
+    print(class_weights)
     if addweights:
         model.fit(x_train,y_train,
               batch_size=batch_size,
