@@ -256,18 +256,18 @@ class log_UAR(Callback):
 
 if __name__ == '__main__':
 
-    fold_dir = '/media/taufiq/Data/heart_sound/interspeech_compare/feature/segmented_noFIR/'
+    fold_dir = '/home/prio/heart_sound/feature/segmented_noFIR/'
     foldname = 'comParE'
-    model_dir = '/media/taufiq/Data/heart_sound/models/'
+    model_dir = '/home/prio/heart_sound/models/'
     log_name = foldname + ' ' + str(datetime.now())
     checkpoint_name = model_dir + log_name + "/" + 'weights.{epoch:04d}-{val_acc:.4f}.hdf5'
     if not os.path.exists(model_dir + log_name):
         os.makedirs(model_dir + log_name)
-    log_dir = '/media/taufiq/Data/heart_sound/interspeech_compare/logs/'
+    log_dir = '/home/prio/heart_sound/logs/'
 
     ##### Load Model ######
 
-    load_path='/media/taufiq/Data/heart_sound/models/fold1_noFIR 2018-03-13 03:55:23.240321/weights.0169-0.8798.hdf5'
+    load_path='/home/prio/heart_sound/weights.0148-0.8902.hdf5'
     # lr = 0.00001
     lr = 0.1
     num_dense1 = 734 #34,120,167,239,1239,650,788,422,598

@@ -68,7 +68,7 @@ class Conv1D_zerophase(Layer):
             padding='same',
             data_format=self.data_format,
             dilation_rate=self.dilation_rate[0])
-        print tf.shape(outputs)
+#         print tf.shape(outputs)
         outputs = tf.reverse(outputs, axis=[1])
         outputs = K.conv1d(
             outputs,
@@ -77,7 +77,7 @@ class Conv1D_zerophase(Layer):
             padding=self.padding,
             data_format=self.data_format,
             dilation_rate=self.dilation_rate[0])
-        print tf.shape(outputs)
+#         print tf.shape(outputs)
         outputs = tf.reverse(outputs, axis=[1])
         if self.use_bias:
             outputs = K.bias_add(
@@ -149,9 +149,9 @@ class Conv1D_zerophase_linear(Layer):
         self.rank = rank
         self.filters = filters
         if kernel_size % 2:
-            self.kernel_size = conv_utils.normalize_tuple(kernel_size / 2 + 1, rank, 'kernel_size')
+            self.kernel_size = conv_utils.normalize_tuple(kernel_size // 2 + 1, rank, 'kernel_size')
         else:
-            self.kernel_size = conv_utils.normalize_tuple(kernel_size / 2, rank, 'kernel_size')
+            self.kernel_size = conv_utils.normalize_tuple(kernel_size // 2, rank, 'kernel_size')
         self.strides = conv_utils.normalize_tuple(strides, rank, 'strides')
         self.padding = conv_utils.normalize_padding(padding)
         self.data_format = conv_utils.normalize_data_format(data_format)
@@ -293,9 +293,9 @@ class Conv1D_linearphase(Layer):
         self.rank = rank
         self.filters = filters
         if kernel_size % 2:
-            self.kernel_size = conv_utils.normalize_tuple(kernel_size / 2 + 1, rank, 'kernel_size')
+            self.kernel_size = conv_utils.normalize_tuple(kernel_size // 2 + 1, rank, 'kernel_size')
         else:
-            self.kernel_size = conv_utils.normalize_tuple(kernel_size / 2, rank, 'kernel_size')
+            self.kernel_size = conv_utils.normalize_tuple(kernel_size // 2, rank, 'kernel_size')
         self.strides = conv_utils.normalize_tuple(strides, rank, 'strides')
         self.padding = conv_utils.normalize_padding(padding)
         self.data_format = conv_utils.normalize_data_format(data_format)
