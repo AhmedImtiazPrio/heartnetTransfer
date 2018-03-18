@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 from keras import backend as K
 from keras.engine.topology import Layer
 from keras.engine.topology import InputSpec
