@@ -1,10 +1,10 @@
 from __future__ import print_function, division
-
-
-from keras.constraints import max_norm
-from keras.regularizers import l2
-
-from custom_layers import Conv1D_linearphase
+#
+#
+# from keras.constraints import max_norm
+# from keras.regularizers import l2
+#
+# from custom_layers import Conv1D_linearphase
 from heartnet_v1 import heartnet, reshape_folds, branch
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
