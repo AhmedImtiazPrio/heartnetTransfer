@@ -88,8 +88,13 @@ class log_UAR(Callback):
 
                 start_idx = start_idx + int(s)
 
-            score = recall_score(y_pred=pred, y_true=true, average='macro')
-            logs['UAR'] = np.array(score)
+            # score = recall_score(y_pred=pred, y_true=true, average='macro')
+            # logs['UAR'] = np.array(score)
+            confmat = confusion_matrix(y_pred=pred, y_true=true)
+            logs['recall0'] = confmat[0,0]/np.sum(confmat[0,:])
+            logs['recall1'] = confmat[1,1]/np.sum(confmat[1,:])
+            logs['recall2'] = confmat[2,2]/np.sum(confmat[2,:])
+            logs['UAR'] = np.mean([logs['recall0'],logs['recall1'],logs['recall2']])
 
 
 if __name__ == '__main__':
@@ -110,9 +115,9 @@ if __name__ == '__main__':
     lr = 0.006028585143146318
     num_dense1 = 1458 #34,120,167,239,1239,650,788,422,598
     num_dense2 = 179 #121,
-    epochs = 100
+    epochs = 50
     batch_size = 256
-    dropout_rate = 0.
+    dropout_rate = 0.82
     trainable = True
     addweights = True
 
