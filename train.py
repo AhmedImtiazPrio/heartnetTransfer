@@ -114,7 +114,7 @@ if __name__ == '__main__':
     load_path='/home/prio/heart_sound/weights.0148-0.8902.hdf5'
     # lr = 0.00001
     lr = 0.006028585143146318
-    num_dense1 = 1458 #34,120,167,239,1239,650,788,422,598
+    num_dense1 = 239 #34,120,167,239,1239,650,788,422,598,1458
     num_dense2 = 179 #121,
     epochs = 50
     batch_size = 256
@@ -220,7 +220,7 @@ if __name__ == '__main__':
                  'Dropout rate': dropout_rate,
                  'l2_reg': 0.00,
                  'Val Acc Per Cardiac Cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_acc'].values) * 100,
-                 'Val loss Per Cardiac Cycle' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_loss'].values) * 100,
+                 'Val loss Per Cardiac Cycle' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_loss'].values),
                  'Epoch': df1.loc[[max_idx]]['epoch'].values[0],
                  'Training Acc per cardiac cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['acc'].values) * 100,
                  'Normal Recall' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall0'].values) * 100,
