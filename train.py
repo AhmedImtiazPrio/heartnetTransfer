@@ -1,6 +1,4 @@
 from __future__ import print_function, division
-
-
 from keras.constraints import max_norm
 from keras.regularizers import l2
 
@@ -186,14 +184,14 @@ import argparse
 #
 #     return model
 def compute_weight(Y, classes):
-    num_samples = np.float32(len(Y))
-    n_classes = np.float32(len(classes))
+    num_samples = (len(Y))
+    n_classes = (len(classes))
     num_bin = np.sum(Y,axis=-2)
     class_weights = {i: (num_samples / (n_classes * num_bin[i])) for i in range(n_classes)}
     return class_weights
 
 def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_compare/weights.0148-0.8902.hdf5',lr=0.0012843784,lr_decay=0.0001132885,num_dense1=20,num_dense2=20,trainable=False,dropout_rate=0.):
-    model = heartnet(load_path=load_path,FIR_train=False,trainable=trainable)
+    model = heartnet(load_path=False,FIR_train=False,trainable=trainable)
     plot_model(model,'before.png',show_shapes=True,show_layer_names=True)
     x = model.layers[-4].output
     x = Dense(num_dense1,activation='relu',kernel_initializer=initializers.he_uniform(seed=1)) (x)
@@ -269,9 +267,9 @@ if __name__ == '__main__':
 
     load_path='/home/prio/heart_sound/weights.0148-0.8902.hdf5'
     # lr = 0.00001
-    lr = 0.1
-    num_dense1 = 734 #34,120,167,239,1239,650,788,422,598
-    num_dense2 = 20 #121,
+    lr = 0.006028585143146318
+    num_dense1 = 1458 #34,120,167,239,1239,650,788,422,598
+    num_dense2 = 179 #121,
     epochs = 100
     batch_size = 256
     dropout_rate = 0.
