@@ -107,6 +107,7 @@ if __name__ == '__main__':
     if not os.path.exists(model_dir + log_name):
         os.makedirs(model_dir + log_name)
     log_dir = '/home/prio/heart_sound/logs/'
+    results_path = '/home/prio/heart_sound/results.csv'
 
     ##### Load Model ######
 
@@ -117,7 +118,7 @@ if __name__ == '__main__':
     num_dense2 = 179 #121,
     epochs = 50
     batch_size = 256
-    dropout_rate = 0.82
+    dropout_rate = 0.11366701825201375
     trainable = True
     addweights = True
 
@@ -205,3 +206,32 @@ if __name__ == '__main__':
     score = recall_score(y_pred=pred, y_true=true, average='macro')
     print(score)
     print(confusion_matrix(y_true=true,y_pred=pred))
+
+    ##### log results #####
+
+    df = pd.read_csv(results_path)
+    df1 = pd.read_csv(log_dir + log_name + '/training.csv')
+    max_idx = df1['UAR'].idxmax()
+    new_entry = {'Filename': log_name, 'Weight Initialization': 'he_uniform',
+                 'Activation': 'softmax', 'Class weights': addweights,
+                 'Learning Rate' : lr,
+                 'Num Dense 1': num_dense1,
+                 'Num Dense 2': num_dense2,
+                 'Dropout rate': dropout_rate,
+                 'l2_reg': 0.00,
+                 'Val Acc Per Cardiac Cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_acc'].values) * 100,
+                 'Val loss Per Cardiac Cycle' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_loss'].values) * 100,
+                 'Epoch': df1.loc[[max_idx]]['epoch'].values[0],
+                 'Training Acc per cardiac cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['acc'].values) * 100,
+                 'Normal Recall' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall0'].values) * 100,
+                 'Mild Recall' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall1'].values) * 100,
+                 'Severe Recall' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall2'].values) * 100,
+                 'UAR': np.mean(df1.loc[max_idx - 3:max_idx + 3]['UAR'].values) * 100,
+                 }
+
+    index, _ = df.shape
+    new_entry = pd.DataFrame(new_entry, index=[index])
+    df2 = pd.concat([df, new_entry], axis=0)
+    df2 = df2.reindex(df.columns, axis=1)
+    df2.to_csv(results_path, index=False)
+    df2.tail()
