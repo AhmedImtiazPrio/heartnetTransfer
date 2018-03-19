@@ -104,21 +104,22 @@ class log_UAR(Callback):
 
 if __name__ == '__main__':
 
-    fold_dir = '/home/prio/heart_sound/feature/segmented_noFIR/'
+    fold_dir = '/media/taufiq/Data1/heart_sound/feature/segmented_noFIR/'
     foldname = 'comParE'
-    model_dir = '/home/prio/heart_sound/models/'
+    model_dir = '/media/taufiq/Data1/heart_sound/models/'
     log_name = foldname + ' ' + str(datetime.now())
     checkpoint_name = model_dir + log_name + "/" + 'weights.{epoch:04d}-{val_acc:.4f}.hdf5'
     if not os.path.exists(model_dir + log_name):
         os.makedirs(model_dir + log_name)
-    log_dir = '/home/prio/heart_sound/logs/'
+    log_dir = '/media/taufiq/Data1/heart_sound/logs/'
+    results_path = '/media/taufiq/Data1/heart_sound/results.csv'
 
     ##### Load Model ######
 
     load_path='/media/taufiq/Data1/heart_sound/weights.0169-0.8798.hdf5'
     # lr = 0.00001
     lr = 1e-6
-    num_dense1 = 792 #34,120,167,239,1239,650,788,422,598
+    num_dense1 = 239 #34,120,167,239,1239,650,788,422,598
     num_dense2 = 137 #121,
     epochs = 100
     batch_size = 256
@@ -210,3 +211,31 @@ if __name__ == '__main__':
     score = recall_score(y_pred=pred, y_true=true, average='macro')
     print(score)
     print(confusion_matrix(y_true=true,y_pred=pred))
+
+    ##### log results #####
+    df = pd.read_csv(results_path)
+    df1 = pd.read_csv(log_dir + log_name + '/training.csv')
+    max_idx = df1['UAR'].idxmax()
+    new_entry = {'Filename': log_name, 'Weight Initialization': 'he_uniform',
+                 'Activation': 'softmax', 'Class weights': addweights,
+                 'Learning Rate' : lr,
+                 'Num Dense 1': num_dense1,
+                 'Num Dense 2': num_dense2,
+                 'Dropout rate': dropout_rate,
+                 'l2_reg': 0.00,
+                 'Val Acc Per Cardiac Cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_acc'].values) * 100,
+                 'Val loss Per Cardiac Cycle' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_loss'].values),
+                 'Epoch': df1.loc[[max_idx]]['epoch'].values[0],
+                 'Training Acc per cardiac cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['acc'].values) * 100,
+                 'Normal Recall' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall0'].values) * 100,
+                 'Mild Recall' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall1'].values) * 100,
+                 'Severe Recall' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall2'].values) * 100,
+                 'UAR': np.mean(df1.loc[max_idx - 3:max_idx + 3]['UAR'].values) * 100,
+                 }
+
+    index, _ = df.shape
+    new_entry = pd.DataFrame(new_entry, index=[index])
+    df2 = pd.concat([df, new_entry], axis=0)
+    df2 = df2.reindex(df.columns, axis=1)
+    df2.to_csv(results_path, index=False)
+    df2.tail()
