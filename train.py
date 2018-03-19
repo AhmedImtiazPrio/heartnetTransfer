@@ -92,8 +92,14 @@ class log_UAR(Callback):
 
                 start_idx = start_idx + int(s)
 
-            score = recall_score(y_pred=pred, y_true=true, average='macro')
-            logs['UAR'] = np.array(score)
+            # score = recall_score(y_pred=pred, y_true=true, average='macro')
+            # logs['UAR'] = np.array(score)
+            confmat = confusion_matrix(y_pred=pred, y_true=true)
+
+            logs['recall0'] = confmat[0, 0] / np.sum(confmat[0, :])
+            logs['recall1'] = confmat[1, 1] / np.sum(confmat[1, :])
+            logs['recall2'] = confmat[2, 2] / np.sum(confmat[2, :])
+            logs['UAR'] = np.mean([logs['recall0'], logs['recall1'], logs['recall2']])
 
 
 if __name__ == '__main__':
