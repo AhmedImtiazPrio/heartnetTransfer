@@ -47,7 +47,7 @@ def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_comp
     plot_model(model, 'after.png',show_shapes=True,show_layer_names=True)
     if load_path:
         model.load_weights(load_path,by_name=True)
-    sgd = SGD(lr=lr)
+    sgd = Adam(lr=lr)
     model.compile(optimizer=sgd, loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
@@ -109,11 +109,11 @@ if __name__ == '__main__':
 
     ##### Load Model ######
 
-    load_path='/home/prio/heart_sound/weights.0148-0.8902.hdf5'
+    load_path='/media/taufiq/Data1/heart_sound/weights.0169-0.8798.hdf5'
     # lr = 0.00001
-    lr = 0.1
-    num_dense1 = 734 #34,120,167,239,1239,650,788,422,598
-    num_dense2 = 20 #121,
+    lr = 1e-6
+    num_dense1 = 792 #34,120,167,239,1239,650,788,422,598
+    num_dense2 = 137 #121,
     epochs = 100
     batch_size = 256
     dropout_rate = 0.
