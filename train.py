@@ -118,9 +118,9 @@ if __name__ == '__main__':
 
     load_path='/media/taufiq/Data1/heart_sound/weights.0169-0.8798.hdf5'
     # lr = 0.00001
-    lr = 1e-6
+    lr = 1e-7
     num_dense1 = 239 #34,120,167,239,1239,650,788,422,598
-    num_dense2 = 137 #121,
+    num_dense2 = 137 #121,137*(239),
     epochs = 100
     batch_size = 256
     dropout_rate = 0.
