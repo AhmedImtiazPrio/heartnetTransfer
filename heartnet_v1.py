@@ -38,6 +38,7 @@ def branch(input_tensor,num_filt,kernel_size,random_seed,padding,bias,maxnorm,l2
                 kernel_initializer=initializers.he_normal(seed=random_seed),
                 padding=padding,
                 use_bias=bias,
+               trainable=trainable,
                 kernel_constraint=max_norm(maxnorm),
                 kernel_regularizer=l2(l2_reg))(input_tensor)
     t = BatchNormalization(epsilon=eps, momentum=bn_momentum, axis=-1)(t)
@@ -48,6 +49,7 @@ def branch(input_tensor,num_filt,kernel_size,random_seed,padding,bias,maxnorm,l2
                 kernel_initializer=initializers.he_normal(seed=random_seed),
                 padding=padding,
                 use_bias=bias,
+                trainable=trainable,
                 kernel_constraint=max_norm(maxnorm),
                 kernel_regularizer=l2(l2_reg))(t)
     t = BatchNormalization(epsilon=eps, momentum=bn_momentum, axis=-1)(t)

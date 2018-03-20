@@ -126,7 +126,7 @@ if __name__ == '__main__':
     batch_size = 256
     dropout_rate = 0.5
     trainable = True
-    addweights = True
+    addweights = False
 
     # res_thresh = .5
     model = heartnet_transfer(load_path=load_path,lr=lr,num_dense1=num_dense1,num_dense2=num_dense2,trainable=trainable,dropout_rate=dropout_rate)
