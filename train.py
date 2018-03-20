@@ -114,8 +114,8 @@ if __name__ == '__main__':
 
     load_path='/home/prio/heart_sound/weights.0148-0.8902.hdf5'
     # lr = 0.00001
-    # lr = 0.006028585143146318
-    lr = 1e-5
+    lr = 0.006028585143146318
+    # lr = 1e-5
     num_dense1 = 239 #34,120,167,239,1239,650,788,422,598,1458
     num_dense2 = 63 #121,
     epochs = 250
@@ -162,90 +162,120 @@ if __name__ == '__main__':
     ### Train ###
     class_weights=compute_weight(y_train,range(3))
     print(class_weights)
-    if addweights:
-        model.fit(x_train,y_train,
-              batch_size=batch_size,
-              epochs=epochs,
-              verbose=2,
-              shuffle=True,
-              class_weight=class_weights,
-              callbacks=[modelcheckpnt,
-                         log_UAR(x_val, y_val, val_parts),
-                         tensbd, csv_logger],
-              validation_data=(x_val,y_val))
-    else:
-        model.fit(x_train,y_train,
-              batch_size=batch_size,
-              epochs=epochs,
-              verbose=2,
-              shuffle=True,
-              callbacks=[modelcheckpnt,
-                         log_UAR(x_val, y_val, val_parts),
-                         tensbd, csv_logger],
-              validation_data=(x_val,y_val))
-
-    ###### Results #####
-
-    y_pred = model.predict(x_val, verbose=0)
-    y_pred = np.argmax(y_pred,axis=-1)
-    y_val = np.transpose(np.argmax(y_val,axis=-1))
-    true = []
-    pred = []
-    start_idx = 0
-    for s in val_parts:
-
-        if not s:  ## for e00032 in validation0 there was no cardiac cycle
-            continue
-        # ~ print "part {} start {} stop {}".format(s,start_idx,start_idx+int(s)-1)
-
-        temp_ = y_val[start_idx:start_idx + int(s) - 1]
-        temp = y_pred[start_idx:start_idx + int(s) - 1]
-
-        if (sum(temp==0) > sum(temp==1)) and  (sum(temp==0) > sum(temp==2)):
-            pred.append(0)
-        elif (sum(temp==2) > sum(temp==1)) and  (sum(temp==2) > sum(temp==0)):
-            pred.append(2)
+    try:
+        if addweights:
+            model.fit(x_train,y_train,
+                  batch_size=batch_size,
+                  epochs=epochs,
+                  verbose=2,
+                  shuffle=True,
+                  class_weight=class_weights,
+                  callbacks=[modelcheckpnt,
+                             log_UAR(x_val, y_val, val_parts),
+                             tensbd, csv_logger],
+                  validation_data=(x_val,y_val))
         else:
-            pred.append(1)
+            model.fit(x_train,y_train,
+                  batch_size=batch_size,
+                  epochs=epochs,
+                  verbose=2,
+                  shuffle=True,
+                  callbacks=[modelcheckpnt,
+                             log_UAR(x_val, y_val, val_parts),
+                             tensbd, csv_logger],
+                  validation_data=(x_val,y_val))
 
-        if (sum(temp_ == 0) > sum(temp_ == 1)) and (sum(temp_ == 0) > sum(temp_ == 2)):
-            true.append(0)
-        elif (sum(temp_ == 2) > sum(temp_ == 1)) and (sum(temp_ == 2) > sum(temp_ == 0)):
-            true.append(2)
-        else:
-            true.append(1)
+        ###### Results #####
 
-        start_idx = start_idx + int(s)
-    score = recall_score(y_pred=pred, y_true=true, average='macro')
-    print(score)
-    print(confusion_matrix(y_true=true,y_pred=pred))
+        y_pred = model.predict(x_val, verbose=0)
+        y_pred = np.argmax(y_pred,axis=-1)
+        y_val = np.transpose(np.argmax(y_val,axis=-1))
+        true = []
+        pred = []
+        start_idx = 0
+        for s in val_parts:
+
+            if not s:  ## for e00032 in validation0 there was no cardiac cycle
+                continue
+            # ~ print "part {} start {} stop {}".format(s,start_idx,start_idx+int(s)-1)
+
+            temp_ = y_val[start_idx:start_idx + int(s) - 1]
+            temp = y_pred[start_idx:start_idx + int(s) - 1]
+
+            if (sum(temp==0) > sum(temp==1)) and  (sum(temp==0) > sum(temp==2)):
+                pred.append(0)
+            elif (sum(temp==2) > sum(temp==1)) and  (sum(temp==2) > sum(temp==0)):
+                pred.append(2)
+            else:
+                pred.append(1)
+
+            if (sum(temp_ == 0) > sum(temp_ == 1)) and (sum(temp_ == 0) > sum(temp_ == 2)):
+                true.append(0)
+            elif (sum(temp_ == 2) > sum(temp_ == 1)) and (sum(temp_ == 2) > sum(temp_ == 0)):
+                true.append(2)
+            else:
+                true.append(1)
+
+            start_idx = start_idx + int(s)
+        score = recall_score(y_pred=pred, y_true=true, average='macro')
+        print(score)
+        print(confusion_matrix(y_true=true,y_pred=pred))
 
     ##### log results #####
 
-    df = pd.read_csv(results_path)
-    df1 = pd.read_csv(log_dir + log_name + '/training.csv')
-    max_idx = df1['UAR'].idxmax()
-    new_entry = {'Filename': log_name, 'Weight Initialization': 'he_uniform',
-                 'Activation': 'softmax', 'Class weights': addweights,
-                 'Learning Rate' : lr,
-                 'Num Dense 1': num_dense1,
-                 'Num Dense 2': num_dense2,
-                 'Dropout rate': dropout_rate,
-                 'l2_reg': 0.00,
-                 'Optimizer': 'adam',
-                 'Val Acc Per Cardiac Cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_acc'].values) * 100,
-                 'Val loss Per Cardiac Cycle' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_loss'].values),
-                 'Epoch': df1.loc[[max_idx]]['epoch'].values[0],
-                 'Training Acc per cardiac cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['acc'].values) * 100,
-                 'Normal Recall' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall0'].values) * 100,
-                 'Mild Recall' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall1'].values) * 100,
-                 'Severe Recall' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall2'].values) * 100,
-                 'UAR': np.mean(df1.loc[max_idx - 3:max_idx + 3]['UAR'].values) * 100,
-                 }
+        df = pd.read_csv(results_path)
+        df1 = pd.read_csv(log_dir + log_name + '/training.csv')
+        max_idx = df1['UAR'].idxmax()
+        new_entry = {'Filename': log_name, 'Weight Initialization': 'he_uniform',
+                     'Activation': 'softmax', 'Class weights': addweights,
+                     'Learning Rate' : lr,
+                     'Num Dense 1': num_dense1,
+                     'Num Dense 2': num_dense2,
+                     'Dropout rate': dropout_rate,
+                     'l2_reg': 0.00,
+                     'Optimizer': 'adam',
+                     'Val Acc Per Cardiac Cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_acc'].values) * 100,
+                     'Val loss Per Cardiac Cycle' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_loss'].values),
+                     'Epoch': df1.loc[[max_idx]]['epoch'].values[0],
+                     'Training Acc per cardiac cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['acc'].values) * 100,
+                     'Normal Recall' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall0'].values) * 100,
+                     'Mild Recall' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall1'].values) * 100,
+                     'Severe Recall' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall2'].values) * 100,
+                     'UAR': np.mean(df1.loc[max_idx - 3:max_idx + 3]['UAR'].values) * 100,
+                     }
 
-    index, _ = df.shape
-    new_entry = pd.DataFrame(new_entry, index=[index])
-    df2 = pd.concat([df, new_entry], axis=0)
-    df2 = df2.reindex(df.columns, axis=1)
-    df2.to_csv(results_path, index=False)
-    df2.tail()
+        index, _ = df.shape
+        new_entry = pd.DataFrame(new_entry, index=[index])
+        df2 = pd.concat([df, new_entry], axis=0)
+        df2 = df2.reindex(df.columns, axis=1)
+        df2.to_csv(results_path, index=False)
+        df2.tail()
+
+    except KeyboardInterrupt:
+        df = pd.read_csv(results_path)
+        df1 = pd.read_csv(log_dir + log_name + '/training.csv')
+        max_idx = df1['UAR'].idxmax()
+        new_entry = {'Filename': log_name, 'Weight Initialization': 'he_uniform',
+                     'Activation': 'softmax', 'Class weights': addweights,
+                     'Learning Rate': lr,
+                     'Num Dense 1': num_dense1,
+                     'Num Dense 2': num_dense2,
+                     'Dropout rate': dropout_rate,
+                     'l2_reg': 0.00,
+                     'Optimizer': 'adam',
+                     'Val Acc Per Cardiac Cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_acc'].values) * 100,
+                     'Val loss Per Cardiac Cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_loss'].values),
+                     'Epoch': df1.loc[[max_idx]]['epoch'].values[0],
+                     'Training Acc per cardiac cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['acc'].values) * 100,
+                     'Normal Recall': np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall0'].values) * 100,
+                     'Mild Recall': np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall1'].values) * 100,
+                     'Severe Recall': np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall2'].values) * 100,
+                     'UAR': np.mean(df1.loc[max_idx - 3:max_idx + 3]['UAR'].values) * 100,
+                     }
+
+        index, _ = df.shape
+        new_entry = pd.DataFrame(new_entry, index=[index])
+        df2 = pd.concat([df, new_entry], axis=0)
+        df2 = df2.reindex(df.columns, axis=1)
+        df2.to_csv(results_path, index=False)
+        df2.tail()
