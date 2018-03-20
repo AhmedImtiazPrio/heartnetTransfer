@@ -55,7 +55,7 @@ def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_comp
     if load_path:
         model.load_weights(load_path,by_name=True)
     # print("after model weights {}".format(model.get_weights()))
-    gd = optimizer(lr=lr,lr_decay=lr_decay)
+    gd = optimizer(lr=lr,decay=lr_decay)
     model.compile(optimizer=gd, loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
