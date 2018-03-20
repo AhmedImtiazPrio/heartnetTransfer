@@ -105,7 +105,8 @@ class log_UAR(Callback):
 if __name__ == '__main__':
 
     fold_dir = '/media/taufiq/Data1/heart_sound/feature/segmented_noFIR/'
-    foldname = 'comParE'
+    # foldname = 'comParE'
+    foldname = 'compare+valid1-normal+severe'
     model_dir = '/media/taufiq/Data1/heart_sound/models/'
     log_name = foldname + ' ' + str(datetime.now())
     checkpoint_name = model_dir + log_name + "/" + 'weights.{epoch:04d}-{val_acc:.4f}.hdf5'
@@ -118,12 +119,12 @@ if __name__ == '__main__':
 
     load_path='/media/taufiq/Data1/heart_sound/weights.0169-0.8798.hdf5'
     # lr = 0.00001
-    lr = 1e-7
+    lr = 1e-6
     num_dense1 = 239 #34,120,167,239,1239,650,788,422,598
-    num_dense2 = 137 #121,137*(239),
+    num_dense2 = 63 #121,137*(239),
     epochs = 100
     batch_size = 256
-    dropout_rate = 0.
+    dropout_rate = 0.5
     trainable = True
     addweights = True
 
@@ -236,6 +237,6 @@ if __name__ == '__main__':
     index, _ = df.shape
     new_entry = pd.DataFrame(new_entry, index=[index])
     df2 = pd.concat([df, new_entry], axis=0)
-    df2 = df2.reindex(df.columns, axis=1)
+    # df2 = df2.reindex(df.columns)
     df2.to_csv(results_path, index=False)
-    df2.tail()
+    print(df2.tail())
