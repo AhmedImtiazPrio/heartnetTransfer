@@ -20,6 +20,7 @@ from keras.layers import Dense, Dropout, Concatenate, initializers, Input
 from keras.models import Model
 from sklearn.metrics import recall_score, confusion_matrix
 import pandas as pd
+from keras import backend as K
 import os
 import tables
 from datetime import datetime
@@ -32,27 +33,28 @@ def compute_weight(Y, classes):
 
 def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_compare/weights.0148-0.8902.hdf5',
                       lr=0.0012843784,lr_decay=0.0001132885,num_dense1=20,num_dense2=20,
-                      trainable=True,dropout_rate=0.,optimizer=Adam,l2_reg=0.0):
-    model = heartnet(load_path=load_path,FIR_train=False,trainable=trainable)
+                      trainable=False,dropout_rate=0.,optimizer=Adam,l2_reg=0.0):
+    print("Trainable : {}".format(trainable))
+    model = heartnet(load_path=load_path,FIR_train=False,trainable=trainable,random_seed=1)
     plot_model(model,'before.png',show_shapes=True,show_layer_names=True)
     x = model.layers[-4].output
     x = Dense(num_dense1,activation='relu',
-              kernel_initializer=initializers.he_uniform(seed=1),
+              kernel_initializer=initializers.he_uniform(seed=10),
               kernel_regularizer=l2(l2_reg),
               ) (x)
     x = Dropout(rate=dropout_rate,seed=1) (x)
-    x = Dense(num_dense2, activation='relu',
-              kernel_initializer=initializers.he_normal(seed=1),
-              kernel_regularizer=l2(l2_reg),
-              )(x)
-    x = Dropout(rate=dropout_rate, seed=1)(x)
+    # x = Dense(num_dense2, activation='relu',
+    #           kernel_initializer=initializers.he_uniform(seed=10),
+    #           kernel_regularizer=l2(l2_reg),
+    #           )(x)
+    # x = Dropout(rate=dropout_rate, seed=1)(x)
     output = Dense(3,activation='softmax')(x)
     model = Model(inputs=model.input,outputs=output)
     plot_model(model, 'after.png',show_shapes=True,show_layer_names=True)
-    print("before model weights {}".format(model.get_weights()))
+    # print("before model weights {}".format(model.get_weights()))
     if load_path:
         model.load_weights(load_path,by_name=True)
-    print("after model weights {}".format(model.get_weights()))
+    # print("after model weights {}".format(model.get_weights()))
     gd = optimizer(lr=lr)
     model.compile(optimizer=gd, loss='categorical_crossentropy', metrics=['accuracy'])
     return model
@@ -106,6 +108,16 @@ class log_UAR(Callback):
             logs['recall2'] = confmat[2,2]/np.sum(confmat[2,:])
             logs['UAR'] = np.mean([logs['recall0'],logs['recall1'],logs['recall2']])
 
+            ###### log lr #####
+            lr = self.model.optimizer.lr
+            if self.model.optimizer.initial_decay > 0:
+                lr *= (1. / (1. + self.model.optimizer.decay * K.cast(self.model.optimizer.iterations,
+                                                                      K.dtype(self.model.optimizer.decay))))
+            t = K.cast(self.model.optimizer.iterations, K.floatx()) + 1
+            lr_t = lr * (
+                    K.sqrt(1. - K.pow(self.model.optimizer.beta_2, t)) / (1. - K.pow(self.model.optimizer.beta_1, t)))
+            logs['lr'] = np.array(float(K.get_value(lr_t)))
+
 
 if __name__ == '__main__':
 
@@ -122,19 +134,25 @@ if __name__ == '__main__':
 
     ##### Load Model ######
 
-    # load_path='/home/prio/heart_sound/weights.0169-0.8798.hdf5'
-    load_path=False
+    load_path='/home/prio/heart_sound/weights.0169-0.8798.hdf5'
+    # load_path=False
     # lr = 0.00001
-    lr = 0.006028585143146318
+    # lr = 0.006028585143146318
+    lr = [4.50269722e-05,  3.15403905e-07, 3.18981608e-04,
+    1.55528719e-09, 7.08362803e-04, 7.63590671e-08,
+    6.33072140e-04, 5.84299078e-07, 2.95298887e-06,
+    3.93297613e-04]
+    lr= lr[0]
+    print("Learning rate : {}".format(lr))
     # lr = 1e-5
-    num_dense1 = 239 #34,120,167,239,1239,650,788,422,598,1458
+    num_dense1 = 239 #34,120,167,239,1239,650,788,422,598,1458,239
     num_dense2 = 63 #121,
     epochs = 250
     batch_size = 512
     dropout_rate = 0.11366701825201375
     trainable = True
     addweights = False
-    optimizer = SGD
+    optimizer = Adam
     l2_reg = 0.
 
     # res_thresh = .5
@@ -164,7 +182,7 @@ if __name__ == '__main__':
                                     monitor='val_acc', save_best_only=True, mode='max')
     tensbd = TensorBoard(log_dir=log_dir + log_name,
                          batch_size=batch_size,
-                         histogram_freq=100,
+                         histogram_freq=20,
                          # embeddings_freq=99,
                          # embeddings_layer_names=embedding_layer_names,
                          # embeddings_data=x_val,
@@ -246,7 +264,7 @@ if __name__ == '__main__':
                      'Num Dense 2': num_dense2,
                      'Dropout rate': dropout_rate,
                      'l2_reg': 0.00,
-                     'Optimizer': 'adam',
+                     'Optimizer': str(optimizer),
                      'Val Acc Per Cardiac Cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_acc'].values) * 100,
                      'Val loss Per Cardiac Cycle' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_loss'].values),
                      'Epoch': df1.loc[[max_idx]]['epoch'].values[0],
@@ -275,7 +293,7 @@ if __name__ == '__main__':
                      'Num Dense 2': num_dense2,
                      'Dropout rate': dropout_rate,
                      'l2_reg': 0.00,
-                     'Optimizer': 'adam',
+                     'Optimizer': str(optimizer),
                      'Val Acc Per Cardiac Cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_acc'].values) * 100,
                      'Val loss Per Cardiac Cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_loss'].values),
                      'Epoch': df1.loc[[max_idx]]['epoch'].values[0],

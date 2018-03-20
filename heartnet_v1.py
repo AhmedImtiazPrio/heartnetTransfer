@@ -219,7 +219,7 @@ def heartnet(load_path,activation_function='relu', bn_momentum=0.99, bias=False,
     merged = Dense(2, activation='sigmoid')(merged)
 
     model = Model(inputs=input, outputs=merged)
-
+    print("Load_path : {}".format(load_path))
     if load_path:  # If path for loading model was specified
         model.load_weights(filepath=load_path, by_name=False)
 
