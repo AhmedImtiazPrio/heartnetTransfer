@@ -39,7 +39,7 @@ def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_comp
     plot_model(model,'before.png',show_shapes=True,show_layer_names=True)
     x = model.layers[-4].output
     x = Dense(num_dense1,activation='relu',
-              kernel_initializer=initializers.he_uniform(seed=10),
+              kernel_initializer=initializers.he_uniform(),
               kernel_regularizer=l2(l2_reg),
               ) (x)
     x = Dropout(rate=dropout_rate,seed=1) (x)
@@ -138,19 +138,19 @@ if __name__ == '__main__':
     # load_path=False
     # lr = 0.00001
     # lr = 0.006028585143146318
-    lr = [4.50269722e-05,  3.15403905e-07, 3.18981608e-04,
-    1.55528719e-09, 7.08362803e-04, 7.63590671e-08,
-    6.33072140e-04, 5.84299078e-07, 2.95298887e-06,
-    3.93297613e-04]
-    lr= lr[0]
+    # lr = [4.50269722e-05*,  3.15403905e-07, 3.18981608e-04,
+    # 1.55528719e-09, 7.08362803e-04, 7.63590671e-08,
+    # 6.33072140e-04, 5.84299078e-07, 2.95298887e-06,
+    # 3.93297613e-04*]
+    lr= 3.93297613e-04
     print("Learning rate : {}".format(lr))
     # lr = 1e-5
     num_dense1 = 239 #34,120,167,239,1239,650,788,422,598,1458,239
-    num_dense2 = 63 #121,
-    epochs = 250
+    num_dense2 = 0 #121,63*
+    epochs = 60
     batch_size = 512
     dropout_rate = 0.11366701825201375
-    trainable = True
+    trainable = False
     addweights = False
     optimizer = Adam
     l2_reg = 0.
@@ -259,6 +259,7 @@ if __name__ == '__main__':
         max_idx = df1['UAR'].idxmax()
         new_entry = {'Filename': log_name, 'Weight Initialization': 'he_uniform',
                      'Activation': 'softmax', 'Class weights': addweights,
+                     'Trainable' : trainable,
                      'Learning Rate' : lr,
                      'Num Dense 1': num_dense1,
                      'Num Dense 2': num_dense2,
@@ -288,6 +289,7 @@ if __name__ == '__main__':
         max_idx = df1['UAR'].idxmax()
         new_entry = {'Filename': log_name, 'Weight Initialization': 'he_uniform',
                      'Activation': 'softmax', 'Class weights': addweights,
+                     'Trainable': trainable,
                      'Learning Rate': lr,
                      'Num Dense 1': num_dense1,
                      'Num Dense 2': num_dense2,
