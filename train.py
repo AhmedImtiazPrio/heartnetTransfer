@@ -55,7 +55,7 @@ def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_comp
     if load_path:
         model.load_weights(load_path,by_name=True)
     # print("after model weights {}".format(model.get_weights()))
-    gd = optimizer(lr=lr)
+    gd = optimizer(lr=lr,lr_decay=lr_decay)
     model.compile(optimizer=gd, loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
@@ -142,22 +142,26 @@ if __name__ == '__main__':
     # 1.55528719e-09, 7.08362803e-04, 7.63590671e-08,
     # 6.33072140e-04, 5.84299078e-07, 2.95298887e-06,
     # 3.93297613e-04*]
-    lr= 3.93297613e-04
+    dropout_rate = [0.11366701825201375, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+
+
+    lr= 4.50269722e-05
+    lr_decay= 0.0001132885
     print("Learning rate : {}".format(lr))
     # lr = 1e-5
     num_dense1 = 239 #34,120,167,239,1239,650,788,422,598,1458,239
     num_dense2 = 0 #121,63*
     epochs = 60
     batch_size = 512
-    dropout_rate = 0.11366701825201375
-    trainable = False
+    dropout_rate = dropout_rate[1]
+    trainable = True
     addweights = False
     optimizer = Adam
     l2_reg = 0.
 
     # res_thresh = .5
     model = heartnet_transfer(load_path=load_path,lr=lr,num_dense1=num_dense1,num_dense2=num_dense2,
-                              trainable=trainable,dropout_rate=dropout_rate,optimizer=optimizer,l2_reg=l2_reg)
+                              trainable=trainable,dropout_rate=dropout_rate,optimizer=optimizer,l2_reg=l2_reg,lr_decay=lr_decay)
     plot_model(model,"model.png",show_layer_names=True,show_shapes=True)
 
     ###### Load Data ######
@@ -261,6 +265,7 @@ if __name__ == '__main__':
                      'Activation': 'softmax', 'Class weights': addweights,
                      'Trainable' : trainable,
                      'Learning Rate' : lr,
+                     'lr_decay' : lr_decay,
                      'Num Dense 1': num_dense1,
                      'Num Dense 2': num_dense2,
                      'Dropout rate': dropout_rate,
@@ -291,6 +296,7 @@ if __name__ == '__main__':
                      'Activation': 'softmax', 'Class weights': addweights,
                      'Trainable': trainable,
                      'Learning Rate': lr,
+                     'lr_decay': lr_decay,
                      'Num Dense 1': num_dense1,
                      'Num Dense 2': num_dense2,
                      'Dropout rate': dropout_rate,
