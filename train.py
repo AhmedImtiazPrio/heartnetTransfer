@@ -4,10 +4,10 @@ from keras.regularizers import l2
 
 from heartnet_v1 import heartnet, reshape_folds
 import tensorflow as tf
-from keras.backend.tensorflow_backend import set_session
-config = tf.ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.4
-set_session(tf.Session(config=config))
+# from keras.backend.tensorflow_backend import set_session
+# config = tf.ConfigProto()
+# config.gpu_options.per_process_gpu_memory_fraction = 0.4
+# set_session(tf.Session(config=config))
 import numpy as np
 np.random.seed(1)
 from tensorflow import set_random_seed
@@ -30,7 +30,7 @@ def compute_weight(Y, classes):
     class_weights = {i: (num_samples / (n_classes * num_bin[i])) for i in range(n_classes)}
     return class_weights
 
-def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_compare/weights.0148-0.8902.hdf5',lr=0.0012843784,lr_decay=0.0001132885,num_dense1=20,num_dense2=20,trainable=False,dropout_rate=0.):
+def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_compare/weights.0148-0.8902.hdf5',lr=0.0012843784,lr_decay=0.0001132885,num_dense1=20,num_dense2=20,trainable=False,dropout_rate=0.,optimizer=Adam):
     model = heartnet(load_path=False,FIR_train=False,trainable=trainable)
     plot_model(model,'before.png',show_shapes=True,show_layer_names=True)
     x = model.layers[-4].output
@@ -43,8 +43,8 @@ def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_comp
     plot_model(model, 'after.png',show_shapes=True,show_layer_names=True)
     if load_path:
         model.load_weights(load_path,by_name=True)
-    sgd = SGD(lr=lr)
-    model.compile(optimizer=sgd, loss='categorical_crossentropy', metrics=['accuracy'])
+    gd = optimizer(lr=lr)
+    model.compile(optimizer=gd, loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
 class log_UAR(Callback):
@@ -100,7 +100,8 @@ class log_UAR(Callback):
 if __name__ == '__main__':
 
     fold_dir = '/home/prio/heart_sound/feature/segmented_noFIR/'
-    foldname = 'comParE'
+    # foldname = 'compare+valid1-normal+severe'
+    foldname = 'compare+normalboost+severe'
     model_dir = '/home/prio/heart_sound/models/'
     log_name = foldname + ' ' + str(datetime.now())
     checkpoint_name = model_dir + log_name + "/" + 'weights.{epoch:04d}-{val_acc:.4f}.hdf5'
@@ -113,17 +114,19 @@ if __name__ == '__main__':
 
     load_path='/home/prio/heart_sound/weights.0148-0.8902.hdf5'
     # lr = 0.00001
-    lr = 0.006028585143146318
+    # lr = 0.006028585143146318
+    lr = 1e-5
     num_dense1 = 239 #34,120,167,239,1239,650,788,422,598,1458
-    num_dense2 = 179 #121,
-    epochs = 50
-    batch_size = 256
+    num_dense2 = 63 #121,
+    epochs = 250
+    batch_size = 512
     dropout_rate = 0.11366701825201375
     trainable = True
-    addweights = True
+    addweights = False
+    optimizer = SGD
 
     # res_thresh = .5
-    model = heartnet_transfer(load_path=load_path,lr=lr,num_dense1=num_dense1,num_dense2=num_dense2,trainable=trainable,dropout_rate=dropout_rate)
+    model = heartnet_transfer(load_path=load_path,lr=lr,num_dense1=num_dense1,num_dense2=num_dense2,trainable=trainable,dropout_rate=dropout_rate,optimizer=optimizer)
     plot_model(model,"model.png",show_layer_names=True,show_shapes=True)
 
     ###### Load Data ######
@@ -166,6 +169,16 @@ if __name__ == '__main__':
               verbose=2,
               shuffle=True,
               class_weight=class_weights,
+              callbacks=[modelcheckpnt,
+                         log_UAR(x_val, y_val, val_parts),
+                         tensbd, csv_logger],
+              validation_data=(x_val,y_val))
+    else:
+        model.fit(x_train,y_train,
+              batch_size=batch_size,
+              epochs=epochs,
+              verbose=2,
+              shuffle=True,
               callbacks=[modelcheckpnt,
                          log_UAR(x_val, y_val, val_parts),
                          tensbd, csv_logger],
@@ -219,6 +232,7 @@ if __name__ == '__main__':
                  'Num Dense 2': num_dense2,
                  'Dropout rate': dropout_rate,
                  'l2_reg': 0.00,
+                 'Optimizer': 'adam',
                  'Val Acc Per Cardiac Cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_acc'].values) * 100,
                  'Val loss Per Cardiac Cycle' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_loss'].values),
                  'Epoch': df1.loc[[max_idx]]['epoch'].values[0],
