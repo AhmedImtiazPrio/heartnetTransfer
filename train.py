@@ -30,19 +30,29 @@ def compute_weight(Y, classes):
     class_weights = {i: (num_samples / (n_classes * num_bin[i])) for i in range(n_classes)}
     return class_weights
 
-def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_compare/weights.0148-0.8902.hdf5',lr=0.0012843784,lr_decay=0.0001132885,num_dense1=20,num_dense2=20,trainable=False,dropout_rate=0.,optimizer=Adam):
-    model = heartnet(load_path=False,FIR_train=False,trainable=trainable)
+def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_compare/weights.0148-0.8902.hdf5',
+                      lr=0.0012843784,lr_decay=0.0001132885,num_dense1=20,num_dense2=20,
+                      trainable=True,dropout_rate=0.,optimizer=Adam,l2_reg=0.0):
+    model = heartnet(load_path=load_path,FIR_train=False,trainable=trainable)
     plot_model(model,'before.png',show_shapes=True,show_layer_names=True)
     x = model.layers[-4].output
-    x = Dense(num_dense1,activation='relu',kernel_initializer=initializers.he_uniform(seed=1)) (x)
+    x = Dense(num_dense1,activation='relu',
+              kernel_initializer=initializers.he_uniform(seed=1),
+              kernel_regularizer=l2(l2_reg),
+              ) (x)
     x = Dropout(rate=dropout_rate,seed=1) (x)
-    x = Dense(num_dense2, activation='relu',kernel_initializer=initializers.he_normal(seed=1))(x)
+    x = Dense(num_dense2, activation='relu',
+              kernel_initializer=initializers.he_normal(seed=1),
+              kernel_regularizer=l2(l2_reg),
+              )(x)
     x = Dropout(rate=dropout_rate, seed=1)(x)
     output = Dense(3,activation='softmax')(x)
     model = Model(inputs=model.input,outputs=output)
     plot_model(model, 'after.png',show_shapes=True,show_layer_names=True)
+    print("before model weights {}".format(model.get_weights()))
     if load_path:
         model.load_weights(load_path,by_name=True)
+    print("after model weights {}".format(model.get_weights()))
     gd = optimizer(lr=lr)
     model.compile(optimizer=gd, loss='categorical_crossentropy', metrics=['accuracy'])
     return model
@@ -112,7 +122,8 @@ if __name__ == '__main__':
 
     ##### Load Model ######
 
-    load_path='/home/prio/heart_sound/weights.0148-0.8902.hdf5'
+    # load_path='/home/prio/heart_sound/weights.0169-0.8798.hdf5'
+    load_path=False
     # lr = 0.00001
     lr = 0.006028585143146318
     # lr = 1e-5
@@ -124,9 +135,11 @@ if __name__ == '__main__':
     trainable = True
     addweights = False
     optimizer = SGD
+    l2_reg = 0.
 
     # res_thresh = .5
-    model = heartnet_transfer(load_path=load_path,lr=lr,num_dense1=num_dense1,num_dense2=num_dense2,trainable=trainable,dropout_rate=dropout_rate,optimizer=optimizer)
+    model = heartnet_transfer(load_path=load_path,lr=lr,num_dense1=num_dense1,num_dense2=num_dense2,
+                              trainable=trainable,dropout_rate=dropout_rate,optimizer=optimizer,l2_reg=l2_reg)
     plot_model(model,"model.png",show_layer_names=True,show_shapes=True)
 
     ###### Load Data ######

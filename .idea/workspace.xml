@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="58ff7ccf-2ec6-4a8b-aa62-f2d754ab130a" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/heartnet_v1.py" afterPath="$PROJECT_DIR$/heartnet_v1.py" />
       <change beforePath="$PROJECT_DIR$/train.py" afterPath="$PROJECT_DIR$/train.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -14,24 +15,24 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="heartnet_v1.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="heartnet_v1.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/heartnet_v1.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="94">
-              <caret line="514" column="0" lean-forward="true" selection-start-line="514" selection-start-column="0" selection-end-line="541" selection-end-column="50" />
+            <state relative-caret-position="-2795">
+              <caret line="33" column="72" lean-forward="false" selection-start-line="33" selection-start-column="72" selection-end-line="33" selection-end-column="72" />
               <folding>
-                <element signature="e#21955#22426#0" expanded="false" />
-                <element signature="e#22654#23999#0" expanded="false" />
+                <element signature="e#22029#22500#0" expanded="false" />
+                <element signature="e#22728#24073#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="train.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="train.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/train.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="921">
-              <caret line="280" column="18" lean-forward="false" selection-start-line="280" selection-start-column="18" selection-end-line="280" selection-end-column="18" />
+            <state relative-caret-position="612">
+              <caret line="34" column="65" lean-forward="false" selection-start-line="34" selection-start-column="65" selection-end-line="34" selection-end-column="65" />
               <folding>
                 <element signature="e#0#47#0" expanded="true" />
               </folding>
@@ -47,16 +48,16 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/heartnet_v1.py" />
         <option value="$PROJECT_DIR$/train.py" />
+        <option value="$PROJECT_DIR$/heartnet_v1.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="75" />
-    <option name="y" value="-4" />
-    <option name="width" value="928" />
-    <option name="height" value="1204" />
+    <option name="x" value="896" />
+    <option name="y" value="160" />
+    <option name="width" value="960" />
+    <option name="height" value="1027" />
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1">
@@ -89,7 +90,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../heartnet/codes" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunDashboard">
@@ -181,8 +182,8 @@
         <state relative-caret-position="10278">
           <caret line="571" column="18" lean-forward="true" selection-start-line="545" selection-start-column="4" selection-end-line="571" selection-end-column="18" />
           <folding>
-            <element signature="e#21955#22426#0" expanded="false" />
-            <element signature="e#22654#23999#0" expanded="false" />
+            <element signature="e#22029#22500#0" expanded="false" />
+            <element signature="e#22728#24073#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -202,8 +203,8 @@
         <state relative-caret-position="5364">
           <caret line="298" column="0" lean-forward="false" selection-start-line="298" selection-start-column="0" selection-end-line="298" selection-end-column="0" />
           <folding>
-            <element signature="e#21955#22426#0" expanded="false" />
-            <element signature="e#22654#23999#0" expanded="false" />
+            <element signature="e#22029#22500#0" expanded="false" />
+            <element signature="e#22728#24073#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -223,8 +224,8 @@
         <state relative-caret-position="5364">
           <caret line="298" column="0" lean-forward="true" selection-start-line="298" selection-start-column="0" selection-end-line="298" selection-end-column="0" />
           <folding>
-            <element signature="e#21955#22426#0" expanded="false" />
-            <element signature="e#22654#23999#0" expanded="false" />
+            <element signature="e#22029#22500#0" expanded="false" />
+            <element signature="e#22728#24073#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -244,8 +245,8 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#21955#22426#0" expanded="false" />
-            <element signature="e#22654#23999#0" expanded="false" />
+            <element signature="e#22029#22500#0" expanded="false" />
+            <element signature="e#22728#24073#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -261,23 +262,23 @@
       </provider>
     </entry>
     <entry file="file://$USER_HOME$/Heart_Sound/codes/Wav file pipeline for heartnet.ipynb" />
-    <entry file="file://$PROJECT_DIR$/heartnet_v1.py">
+    <entry file="file://$PROJECT_DIR$/train.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="94">
-          <caret line="514" column="0" lean-forward="true" selection-start-line="514" selection-start-column="0" selection-end-line="541" selection-end-column="50" />
+        <state relative-caret-position="612">
+          <caret line="34" column="65" lean-forward="false" selection-start-line="34" selection-start-column="65" selection-end-line="34" selection-end-column="65" />
           <folding>
-            <element signature="e#21955#22426#0" expanded="false" />
-            <element signature="e#22654#23999#0" expanded="false" />
+            <element signature="e#0#47#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/train.py">
+    <entry file="file://$PROJECT_DIR$/heartnet_v1.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="921">
-          <caret line="280" column="18" lean-forward="false" selection-start-line="280" selection-start-column="18" selection-end-line="280" selection-end-column="18" />
+        <state relative-caret-position="-2795">
+          <caret line="33" column="72" lean-forward="false" selection-start-line="33" selection-start-column="72" selection-end-line="33" selection-end-column="72" />
           <folding>
-            <element signature="e#0#47#0" expanded="true" />
+            <element signature="e#22029#22500#0" expanded="false" />
+            <element signature="e#22728#24073#0" expanded="false" />
           </folding>
         </state>
       </provider>
