@@ -145,19 +145,19 @@ if __name__ == '__main__':
     dropout_rate = [0.11366701825201375, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
 
-    lr= 4.50269722e-05
-    lr_decay= 0.0001132885
+    lr= 0.0002332976
+    lr_decay= 1e-7
     print("Learning rate : {}".format(lr))
     # lr = 1e-5
     num_dense1 = 239 #34,120,167,239,1239,650,788,422,598,1458,239
     num_dense2 = 0 #121,63*
-    epochs = 60
+    epochs = 200
     batch_size = 512
-    dropout_rate = dropout_rate[1]
+    dropout_rate = dropout_rate[5]
     trainable = True
     addweights = False
     optimizer = Adam
-    l2_reg = 0.
+    l2_reg = 0.008 #0.01
 
     # res_thresh = .5
     model = heartnet_transfer(load_path=load_path,lr=lr,num_dense1=num_dense1,num_dense2=num_dense2,
@@ -269,7 +269,7 @@ if __name__ == '__main__':
                      'Num Dense 1': num_dense1,
                      'Num Dense 2': num_dense2,
                      'Dropout rate': dropout_rate,
-                     'l2_reg': 0.00,
+                     'l2_reg': l2_reg,
                      'Optimizer': str(optimizer),
                      'Val Acc Per Cardiac Cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_acc'].values) * 100,
                      'Val loss Per Cardiac Cycle' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_loss'].values),
@@ -300,7 +300,7 @@ if __name__ == '__main__':
                      'Num Dense 1': num_dense1,
                      'Num Dense 2': num_dense2,
                      'Dropout rate': dropout_rate,
-                     'l2_reg': 0.00,
+                     'l2_reg': l2_reg,
                      'Optimizer': str(optimizer),
                      'Val Acc Per Cardiac Cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_acc'].values) * 100,
                      'Val loss Per Cardiac Cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_loss'].values),

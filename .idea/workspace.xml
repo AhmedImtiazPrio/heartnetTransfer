@@ -17,10 +17,9 @@
       <file leaf-file-name="heartnet_v1.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/heartnet_v1.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="489">
+            <state relative-caret-position="6300">
               <caret line="438" column="18" lean-forward="false" selection-start-line="438" selection-start-column="18" selection-end-line="438" selection-end-column="30" />
               <folding>
-                <element signature="e#0#37#0" expanded="true" />
                 <element signature="e#5379#5428#0" expanded="false" />
                 <element signature="e#22074#22545#0" expanded="false" />
                 <element signature="e#22773#24118#0" expanded="false" />
@@ -32,11 +31,20 @@
       <file leaf-file-name="train.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/train.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1325">
-              <caret line="62" column="0" lean-forward="true" selection-start-line="62" selection-start-column="0" selection-end-line="62" selection-end-column="0" />
+            <state relative-caret-position="329">
+              <caret line="147" column="20" lean-forward="true" selection-start-line="147" selection-start-column="20" selection-end-line="147" selection-end-column="20" />
               <folding>
                 <element signature="e#0#47#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Banglalekha.ipynb" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/Downloads/BUET_EEE13/Banglalekha.ipynb">
+          <provider selected="true" editor-type-id="ipnb-editor">
+            <state>
+              <selected id="5" />
             </state>
           </provider>
         </entry>
@@ -75,7 +83,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
@@ -88,6 +95,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -148,7 +156,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="65" y="-4" width="1855" height="1204" extended-state="6" />
+    <frame x="896" y="160" width="1857" height="1212" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17196766" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -180,10 +188,38 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/heartnet_v1.py">
       <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="6300">
+          <caret line="438" column="18" lean-forward="false" selection-start-line="438" selection-start-column="18" selection-end-line="438" selection-end-column="30" />
+          <folding>
+            <element signature="e#5379#5428#0" expanded="false" />
+            <element signature="e#22074#22545#0" expanded="false" />
+            <element signature="e#22773#24118#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/train.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2682">
+          <caret line="159" column="18" lean-forward="false" selection-start-line="159" selection-start-column="18" selection-end-line="159" selection-end-column="18" />
+          <folding>
+            <element signature="e#0#47#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Downloads/BUET_EEE13/Banglalekha.ipynb">
+      <provider selected="true" editor-type-id="ipnb-editor">
+        <state>
+          <selected id="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/heartnet_v1.py">
+      <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="10278">
           <caret line="571" column="18" lean-forward="true" selection-start-line="545" selection-start-column="4" selection-end-line="571" selection-end-column="18" />
           <folding>
-            <element signature="e#0#37#0" expanded="true" />
             <element signature="e#5379#5428#0" expanded="false" />
             <element signature="e#22074#22545#0" expanded="false" />
             <element signature="e#22773#24118#0" expanded="false" />
@@ -206,7 +242,6 @@
         <state relative-caret-position="5364">
           <caret line="298" column="0" lean-forward="false" selection-start-line="298" selection-start-column="0" selection-end-line="298" selection-end-column="0" />
           <folding>
-            <element signature="e#0#37#0" expanded="true" />
             <element signature="e#5379#5428#0" expanded="false" />
             <element signature="e#22074#22545#0" expanded="false" />
             <element signature="e#22773#24118#0" expanded="false" />
@@ -229,7 +264,6 @@
         <state relative-caret-position="5364">
           <caret line="298" column="0" lean-forward="true" selection-start-line="298" selection-start-column="0" selection-end-line="298" selection-end-column="0" />
           <folding>
-            <element signature="e#0#37#0" expanded="true" />
             <element signature="e#5379#5428#0" expanded="false" />
             <element signature="e#22074#22545#0" expanded="false" />
             <element signature="e#22773#24118#0" expanded="false" />
@@ -252,7 +286,6 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#0#37#0" expanded="true" />
             <element signature="e#5379#5428#0" expanded="false" />
             <element signature="e#22074#22545#0" expanded="false" />
             <element signature="e#22773#24118#0" expanded="false" />
@@ -273,10 +306,9 @@
     <entry file="file://$USER_HOME$/Heart_Sound/codes/Wav file pipeline for heartnet.ipynb" />
     <entry file="file://$PROJECT_DIR$/heartnet_v1.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="489">
+        <state relative-caret-position="6300">
           <caret line="438" column="18" lean-forward="false" selection-start-line="438" selection-start-column="18" selection-end-line="438" selection-end-column="30" />
           <folding>
-            <element signature="e#0#37#0" expanded="true" />
             <element signature="e#5379#5428#0" expanded="false" />
             <element signature="e#22074#22545#0" expanded="false" />
             <element signature="e#22773#24118#0" expanded="false" />
@@ -284,10 +316,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/Downloads/BUET_EEE13/Banglalekha.ipynb">
+      <provider selected="true" editor-type-id="ipnb-editor">
+        <state>
+          <selected id="5" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/train.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1325">
-          <caret line="62" column="0" lean-forward="true" selection-start-line="62" selection-start-column="0" selection-end-line="62" selection-end-column="0" />
+        <state relative-caret-position="329">
+          <caret line="147" column="20" lean-forward="true" selection-start-line="147" selection-start-column="20" selection-end-line="147" selection-end-column="20" />
           <folding>
             <element signature="e#0#47#0" expanded="true" />
           </folding>
