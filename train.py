@@ -169,10 +169,19 @@ if __name__ == '__main__':
                                  featurewise_center=True,
                                  # zoom_range=.2,
                                  # zca_whitening=True,
-                                 samplewise_center=True,
+                                 # samplewise_center=True,
+                                 samplewise_std_normalization=True,
+                                 )
+    valgen = AudioDataGenerator(
+                                 fill_mode='reflect',
+                                 featurewise_center=True,
+                                 # zoom_range=.2,
+                                 # zca_whitening=True,
+                                 # samplewise_center=True,
+                                 samplewise_std_normalization=True,
                                  )
     datagen.fit(x_train)
-
+    valgen.fit(x_val)
     ### Train ###
     class_weights=compute_weight(y_train,range(3))
     print(class_weights)
@@ -187,7 +196,7 @@ if __name__ == '__main__':
                             callbacks=[modelcheckpnt,
                                        log_UAR(x_val, y_val, val_parts),
                                        tensbd, csv_logger],
-                            validation_data=(x_val,y_val))
+                            validation_data=valgen.flow(x_val,y_val,batch_size,shuffle=True,seed=1))
 
     ###### Results #####
 
