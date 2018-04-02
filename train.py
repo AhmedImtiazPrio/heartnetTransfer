@@ -1,6 +1,5 @@
 from __future__ import print_function, division
-#
-#
+from AudioDataGenerator import AudioDataGenerator
 # from keras.constraints import max_norm
 # from keras.regularizers import l2
 #
@@ -124,9 +123,9 @@ if __name__ == '__main__':
     num_dense2 = 63 #121,137*(239),
     epochs = 100
     batch_size = 256
-    dropout_rate = 0.5
+    dropout_rate = 0.
     trainable = True
-    addweights = False
+    addweights = True
 
     # res_thresh = .5
     model = heartnet_transfer(load_path=load_path,lr=lr,num_dense1=num_dense1,num_dense2=num_dense2,trainable=trainable,dropout_rate=dropout_rate)
@@ -162,20 +161,26 @@ if __name__ == '__main__':
                          write_images=False)
     print(np.sum(y_train,axis=-2))
     print(np.sum(y_val, axis=-2))
+
+    ### Data Generator ###
+
+    datagen = AudioDataGenerator(shift=0.2,featurewise_center=True)
+
     ### Train ###
     class_weights=compute_weight(y_train,range(3))
     print(class_weights)
     if addweights:
-        model.fit(x_train,y_train,
-              batch_size=batch_size,
-              epochs=epochs,
-              verbose=2,
-              shuffle=True,
-              class_weight=class_weights,
-              callbacks=[modelcheckpnt,
-                         log_UAR(x_val, y_val, val_parts),
-                         tensbd, csv_logger],
-              validation_data=(x_val,y_val))
+        model.fit_generator(datagen.flow(x_train,y_train,batch_size,shuffle=True,seed=1),
+                            steps_per_epoch=len(x_train)/batch_size,
+                            use_multiprocessing=False,
+                            epochs=epochs,
+                            verbose=2,
+                            shuffle=True,
+                            class_weight=class_weights,
+                            callbacks=[modelcheckpnt,
+                                       log_UAR(x_val, y_val, val_parts),
+                                       tensbd, csv_logger],
+                            validation_data=(x_val,y_val))
 
     ###### Results #####
 
@@ -214,29 +219,29 @@ if __name__ == '__main__':
     print(confusion_matrix(y_true=true,y_pred=pred))
 
     ##### log results #####
-    df = pd.read_csv(results_path)
-    df1 = pd.read_csv(log_dir + log_name + '/training.csv')
-    max_idx = df1['UAR'].idxmax()
-    new_entry = {'Filename': log_name, 'Weight Initialization': 'he_uniform',
-                 'Activation': 'softmax', 'Class weights': addweights,
-                 'Learning Rate' : lr,
-                 'Num Dense 1': num_dense1,
-                 'Num Dense 2': num_dense2,
-                 'Dropout rate': dropout_rate,
-                 'l2_reg': 0.00,
-                 'Val Acc Per Cardiac Cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_acc'].values) * 100,
-                 'Val loss Per Cardiac Cycle' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_loss'].values),
-                 'Epoch': df1.loc[[max_idx]]['epoch'].values[0],
-                 'Training Acc per cardiac cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['acc'].values) * 100,
-                 'Normal Recall' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall0'].values) * 100,
-                 'Mild Recall' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall1'].values) * 100,
-                 'Severe Recall' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall2'].values) * 100,
-                 'UAR': np.mean(df1.loc[max_idx - 3:max_idx + 3]['UAR'].values) * 100,
-                 }
-
-    index, _ = df.shape
-    new_entry = pd.DataFrame(new_entry, index=[index])
-    df2 = pd.concat([df, new_entry], axis=0)
-    # df2 = df2.reindex(df.columns)
-    df2.to_csv(results_path, index=False)
-    print(df2.tail())
+    # df = pd.read_csv(results_path)
+    # df1 = pd.read_csv(log_dir + log_name + '/training.csv')
+    # max_idx = df1['UAR'].idxmax()
+    # new_entry = {'Filename': log_name, 'Weight Initialization': 'he_uniform',
+    #              'Activation': 'softmax', 'Class weights': addweights,
+    #              'Learning Rate' : lr,
+    #              'Num Dense 1': num_dense1,
+    #              'Num Dense 2': num_dense2,
+    #              'Dropout rate': dropout_rate,
+    #              'l2_reg': 0.00,
+    #              'Val Acc Per Cardiac Cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_acc'].values) * 100,
+    #              'Val loss Per Cardiac Cycle' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['val_loss'].values),
+    #              'Epoch': df1.loc[[max_idx]]['epoch'].values[0],
+    #              'Training Acc per cardiac cycle': np.mean(df1.loc[max_idx - 3:max_idx + 3]['acc'].values) * 100,
+    #              'Normal Recall' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall0'].values) * 100,
+    #              'Mild Recall' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall1'].values) * 100,
+    #              'Severe Recall' : np.mean(df1.loc[max_idx - 3:max_idx + 3]['recall2'].values) * 100,
+    #              'UAR': np.mean(df1.loc[max_idx - 3:max_idx + 3]['UAR'].values) * 100,
+    #              }
+    #
+    # index, _ = df.shape
+    # new_entry = pd.DataFrame(new_entry, index=[index])
+    # df2 = pd.concat([df, new_entry], axis=0)
+    # # df2 = df2.reindex(df.columns)
+    # df2.to_csv(results_path, index=False)
+    # print(df2.tail())
