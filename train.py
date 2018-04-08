@@ -153,7 +153,7 @@ if __name__ == '__main__':
                                     monitor='val_acc', save_best_only=True, mode='max')
     tensbd = TensorBoard(log_dir=log_dir + log_name,
                          batch_size=batch_size,
-                         histogram_freq=100,
+                         # histogram_freq=100,
                          # embeddings_freq=99,
                          # embeddings_layer_names=embedding_layer_names,
                          # embeddings_data=x_val,
@@ -165,20 +165,20 @@ if __name__ == '__main__':
     ### Data Generator ###
 
     datagen = AudioDataGenerator(shift=.22,
-                                 fill_mode='reflect',
-                                 featurewise_center=True,
+                                 # fill_mode='reflect',
+                                 # featurewise_center=True,
                                  # zoom_range=.2,
                                  # zca_whitening=True,
                                  # samplewise_center=True,
-                                 samplewise_std_normalization=True,
+                                 # samplewise_std_normalization=True,
                                  )
     valgen = AudioDataGenerator(
-                                 fill_mode='reflect',
-                                 featurewise_center=True,
+                                 # fill_mode='reflect',
+                                 # featurewise_center=True,
                                  # zoom_range=.2,
                                  # zca_whitening=True,
                                  # samplewise_center=True,
-                                 samplewise_std_normalization=True,
+                                 # samplewise_std_normalization=True,
                                  )
     datagen.fit(x_train)
     valgen.fit(x_val)
