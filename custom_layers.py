@@ -1,10 +1,11 @@
-from __future__ import print_function, division
+from __future__ import print_function, absolute_import, division
 from keras import backend as K
 from keras.engine.topology import Layer
 from keras.engine.topology import InputSpec
 import tensorflow as tf
 from keras.utils import conv_utils
 from keras.layers import activations, initializers, regularizers, constraints
+from scipy.fftpack import dct
 
 
 class Conv1D_zerophase(Layer):
@@ -69,7 +70,6 @@ class Conv1D_zerophase(Layer):
             padding='same',
             data_format=self.data_format,
             dilation_rate=self.dilation_rate[0])
-#         print tf.shape(outputs)
         outputs = tf.reverse(outputs, axis=[1])
         outputs = K.conv1d(
             outputs,
@@ -78,7 +78,6 @@ class Conv1D_zerophase(Layer):
             padding=self.padding,
             data_format=self.data_format,
             dilation_rate=self.dilation_rate[0])
-#         print tf.shape(outputs)
         outputs = tf.reverse(outputs, axis=[1])
         if self.use_bias:
             outputs = K.bias_add(
@@ -92,13 +91,19 @@ class Conv1D_zerophase(Layer):
         return outputs
 
     def compute_output_shape(self, input_shape):
+        kernel_size = list(self.kernel_size)
+        if self.kernel_size[0] % 2:
+            kernel_size[0] = kernel_size[0]*2 -1
+        else:
+            kernel_size[0] = kernel_size[0]*2
+        kernel_size = tuple(kernel_size)
         if self.data_format == 'channels_last':
             space = input_shape[1:-1]
             new_space = []
             for i in range(len(space)):
                 new_dim = conv_utils.conv_output_length(
                     space[i],
-                    self.kernel_size[i],
+                    kernel_size[i],
                     padding=self.padding,
                     stride=self.strides[i],
                     dilation=self.dilation_rate[i])
@@ -110,7 +115,7 @@ class Conv1D_zerophase(Layer):
             for i in range(len(space)):
                 new_dim = conv_utils.conv_output_length(
                     space[i],
-                    self.kernel_size[i],
+                    kernel_size[i],
                     padding=self.padding,
                     stride=self.strides[i],
                     dilation=self.dilation_rate[i])
@@ -149,6 +154,7 @@ class Conv1D_zerophase_linear(Layer):
         super(Conv1D_zerophase_linear, self).__init__(**kwargs)
         self.rank = rank
         self.filters = filters
+        self.kernel_size_ = kernel_size
         if kernel_size % 2:
             self.kernel_size = conv_utils.normalize_tuple(kernel_size // 2 + 1, rank, 'kernel_size')
         else:
@@ -237,13 +243,19 @@ class Conv1D_zerophase_linear(Layer):
         return outputs
 
     def compute_output_shape(self, input_shape):
+        kernel_size = list(self.kernel_size)
+        if self.kernel_size[0] % 2:
+            kernel_size[0] = kernel_size[0]*2 -1
+        else:
+            kernel_size[0] = kernel_size[0]*2
+        kernel_size = tuple(kernel_size)
         if self.data_format == 'channels_last':
             space = input_shape[1:-1]
             new_space = []
             for i in range(len(space)):
                 new_dim = conv_utils.conv_output_length(
                     space[i],
-                    self.kernel_size[i],
+                    kernel_size[i],
                     padding=self.padding,
                     stride=self.strides[i],
                     dilation=self.dilation_rate[i])
@@ -255,7 +267,7 @@ class Conv1D_zerophase_linear(Layer):
             for i in range(len(space)):
                 new_dim = conv_utils.conv_output_length(
                     space[i],
-                    self.kernel_size[i],
+                    kernel_size[i],
                     padding=self.padding,
                     stride=self.strides[i],
                     dilation=self.dilation_rate[i])
@@ -266,7 +278,7 @@ class Conv1D_zerophase_linear(Layer):
         config = {
             'rank': self.rank,
             'filters': self.filters,
-            'kernel_size': self.kernel_size,
+            'kernel_size': self.kernel_size_,
             'strides': self.strides,
             'padding': self.padding,
             'data_format': self.data_format,
@@ -293,6 +305,7 @@ class Conv1D_linearphase(Layer):
         super(Conv1D_linearphase, self).__init__(**kwargs)
         self.rank = rank
         self.filters = filters
+        self.kernel_size_=kernel_size
         if kernel_size % 2:
             self.kernel_size = conv_utils.normalize_tuple(kernel_size // 2 + 1, rank, 'kernel_size')
         else:
@@ -371,13 +384,19 @@ class Conv1D_linearphase(Layer):
         return outputs
 
     def compute_output_shape(self, input_shape):
+        kernel_size = list(self.kernel_size)
+        if self.kernel_size[0] % 2:
+            kernel_size[0] = kernel_size[0]*2 -1
+        else:
+            kernel_size[0] = kernel_size[0]*2
+        kernel_size = tuple(kernel_size)
         if self.data_format == 'channels_last':
             space = input_shape[1:-1]
             new_space = []
             for i in range(len(space)):
                 new_dim = conv_utils.conv_output_length(
                     space[i],
-                    self.kernel_size[i],
+                    kernel_size[i],
                     padding=self.padding,
                     stride=self.strides[i],
                     dilation=self.dilation_rate[i])
@@ -389,7 +408,7 @@ class Conv1D_linearphase(Layer):
             for i in range(len(space)):
                 new_dim = conv_utils.conv_output_length(
                     space[i],
-                    self.kernel_size[i],
+                    kernel_size[i],
                     padding=self.padding,
                     stride=self.strides[i],
                     dilation=self.dilation_rate[i])
@@ -400,7 +419,7 @@ class Conv1D_linearphase(Layer):
         config = {
             'rank': self.rank,
             'filters': self.filters,
-            'kernel_size': self.kernel_size,
+            'kernel_size': self.kernel_size_,
             'strides': self.strides,
             'padding': self.padding,
             'data_format': self.data_format,
@@ -416,4 +435,48 @@ class Conv1D_linearphase(Layer):
             'bias_constraint': constraints.serialize(self.bias_constraint)
         }
         base_config = super(Conv1D_linearphase, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
+
+
+class DCT1D(Layer):
+
+    def __init__(self, type=2, n=None, axis=-2, norm=None, rank=1, data_format='channels_last',**kwargs):
+        super(DCT1D, self).__init__(**kwargs)
+        self.rank = rank
+        self.type = type
+        self.n = n
+        self.axis = axis
+        self.norm = norm
+        self.data_format = conv_utils.normalize_data_format(data_format)
+        self.input_spec = InputSpec(ndim=self.rank + 2)
+        if norm is not None:
+            if norm != 'ortho':
+                raise ValueError('Normalization should be `ortho` or `None`')
+
+
+    def compute_output_shape(self, input_shape):
+        if self.n is not None:
+            space = list(input_shape)
+            space[self.axis] = self.n
+            return tuple(space)
+        else:
+            return input_shape
+
+    def call(self, inputs):
+
+        x = tf.transpose(inputs, [0, 2, 1])
+        x = tf.spectral.dct(x, type=self.type, n=self.n, axis=-1, norm=self.norm)
+        outputs = tf.transpose(x, [0, 2, 1])
+        return outputs
+
+    def get_config(self):
+        config = {
+            'rank': self.rank,
+            'data_format': self.data_format,
+            'type': self.type,
+            'n': self.n,
+            'axis': self.axis,
+            'norm': self.norm,
+        }
+        base_config = super(DCT1D, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))

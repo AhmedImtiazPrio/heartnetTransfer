@@ -1,9 +1,6 @@
 from __future__ import print_function, division
 from AudioDataGenerator import AudioDataGenerator
-# from keras.constraints import max_norm
-# from keras.regularizers import l2
-#
-# from custom_layers import Conv1D_linearphase
+from custom_layers import Conv1D_linearphase, DCT1D
 from heartnet_v1 import heartnet, reshape_folds, branch
 # import tensorflow as tf
 # from keras.backend.tensorflow_backend import set_session
@@ -19,13 +16,13 @@ from keras.optimizers import Adam, SGD
 from keras.callbacks import CSVLogger, ModelCheckpoint, TensorBoard, Callback
 from keras.utils import plot_model
 from keras.layers import Dense, Dropout, Concatenate, initializers, Input
-from keras.models import Model
+from keras.models import Model, model_from_json
 from sklearn.metrics import recall_score, confusion_matrix
 import pandas as pd
 import os
 import tables
 from datetime import datetime
-import argparse
+
 def compute_weight(Y, classes):
     num_samples = np.float32(len(Y))
     n_classes = np.float32(len(classes))
@@ -33,8 +30,17 @@ def compute_weight(Y, classes):
     class_weights = {i: (num_samples / (n_classes * num_bin[i])) for i in range(n_classes)}
     return class_weights
 
-def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_compare/weights.0148-0.8902.hdf5',lr=0.0012843784,lr_decay=0.0001132885,num_dense1=20,num_dense2=20,trainable=False,dropout_rate=0.):
-    model = heartnet(load_path=load_path,FIR_train=False,trainable=trainable)
+def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_compare/weights.0148-0.8902.hdf5',lr=0.0012843784,
+                      model_json=None,
+                      lr_decay=0.0001132885,num_dense1=20,
+                      num_dense2=20,trainable=False,dropout_rate=0.):
+    if not model_json:
+        model = heartnet(load_path=load_path,FIR_train=False,trainable=trainable)
+    else:
+        with open(os.path.join(model_dir + log_name, "model.json")) as json_file:
+            loaded_model_json = json_file.read()
+        model = model_from_json(loaded_model_json, {'Conv1D_linearphase': Conv1D_linearphase, 'DCT1D': DCT1D})
+        model.summary()
     plot_model(model,'before.png',show_shapes=True,show_layer_names=True)
     x = model.layers[-4].output
     x = Dense(num_dense1,activation='relu',kernel_initializer=initializers.he_uniform(seed=1)) (x)
