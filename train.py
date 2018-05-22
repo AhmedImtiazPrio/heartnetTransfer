@@ -30,6 +30,11 @@ def compute_weight(Y, classes):
     class_weights = {i: (num_samples / (n_classes * num_bin[i])) for i in range(n_classes)}
     return class_weights
 
+# load_path,activation_function='relu', bn_momentum=0.99, bias=False, dropout_rate=0.5, dropout_rate_dense=0.0,
+#              eps=1.1e-5, kernel_size=5, l2_reg=0.0, l2_reg_dense=0.0,lr=0.0012843784, lr_decay=0.0001132885, maxnorm=10000.,
+#              padding='valid', random_seed=1, subsam=2, num_filt=(8, 4), num_dense=20,FIR_train=False,trainable=True
+
+
 def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_compare/weights.0148-0.8902.hdf5',lr=0.0012843784,
                       model_json=None,
                       lr_decay=0.0001132885,num_dense1=20,
@@ -37,7 +42,7 @@ def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_comp
     if not model_json:
         model = heartnet(load_path=load_path,FIR_train=False,trainable=trainable)
     else:
-        with open(os.path.join(model_dir + log_name, "model.json")) as json_file:
+        with open(model_json) as json_file:
             loaded_model_json = json_file.read()
         model = model_from_json(loaded_model_json, {'Conv1D_linearphase': Conv1D_linearphase, 'DCT1D': DCT1D})
         model.summary()
@@ -45,15 +50,16 @@ def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_comp
     x = model.layers[-4].output
     x = Dense(num_dense1,activation='relu',kernel_initializer=initializers.he_uniform(seed=1)) (x)
     x = Dropout(rate=dropout_rate,seed=1) (x)
-    x = Dense(num_dense2, activation='relu',kernel_initializer=initializers.he_normal(seed=1))(x)
-    x = Dropout(rate=dropout_rate, seed=1)(x)
+    if num_dense2:
+        x = Dense(num_dense2, activation='relu',kernel_initializer=initializers.he_normal(seed=1))(x)
+        x = Dropout(rate=dropout_rate, seed=1)(x)
     output = Dense(3,activation='softmax')(x)
     model = Model(inputs=model.input,outputs=output)
     plot_model(model, 'after.png',show_shapes=True,show_layer_names=True)
     if load_path:
         model.load_weights(load_path,by_name=True)
-    sgd = Adam(lr=lr)
-    model.compile(optimizer=sgd, loss='categorical_crossentropy', metrics=['accuracy'])
+    opt = Adam(lr=lr)
+    model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
 class log_UAR(Callback):
@@ -110,8 +116,8 @@ class log_UAR(Callback):
 if __name__ == '__main__':
 
     fold_dir = '/media/taufiq/Data1/heart_sound/feature/segmented_noFIR/'
-    # foldname = 'comParE'
-    foldname = 'compare+valid1-normal+severe'
+    foldname = "comParE"
+    # foldname = 'compare+valid1-normal+severe'
     model_dir = '/media/taufiq/Data1/heart_sound/models/'
     log_name = foldname + ' ' + str(datetime.now())
     checkpoint_name = model_dir + log_name + "/" + 'weights.{epoch:04d}-{val_acc:.4f}.hdf5'
@@ -122,7 +128,8 @@ if __name__ == '__main__':
 
     ##### Load Model ######
 
-    load_path='/media/taufiq/Data1/heart_sound/weights.0169-0.8798.hdf5'
+    model_json = '/media/taufiq/Data1/heart_sound/models/fold1+compare 2018-04-17 22:03:55.445492/model.json'
+    load_path= '/media/taufiq/Data1/heart_sound/models/fold1+compare 2018-04-17 22:03:55.445492/weights.0161-0.8362.hdf5'
     # lr = 0.00001
     lr = 0.0002332976
     num_dense1 = 239 #34,120,167,239,1239,650,788,422,598
@@ -135,7 +142,6 @@ if __name__ == '__main__':
 
     # res_thresh = .5
     model = heartnet_transfer(load_path=load_path,lr=lr,num_dense1=num_dense1,num_dense2=num_dense2,trainable=trainable,dropout_rate=dropout_rate)
-    plot_model(model,"model.png",show_layer_names=True,show_shapes=True)
 
     ###### Load Data ######
 
@@ -144,8 +150,13 @@ if __name__ == '__main__':
     y_train = feat.root.trainY[0, :]
     x_val = feat.root.valX[:]
     y_val = feat.root.valY[0, :]
-    train_parts = feat.root.train_parts[:]
+    train_parts = feat.root.train_parts[0, :]
     val_parts = feat.root.val_parts[0, :]
+
+    ###### Create file index ########
+
+
+
 
     ############### Reshaping ############
 
