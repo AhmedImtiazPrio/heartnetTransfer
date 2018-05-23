@@ -7,6 +7,7 @@ from heartnet_v1 import heartnet, reshape_folds, branch
 # config = tf.ConfigProto()
 # config.gpu_options.per_process_gpu_memory_fraction = 0.4
 # set_session(tf.Session(config=config))
+import matlab.engine
 import numpy as np
 np.random.seed(1)
 from tensorflow import set_random_seed
@@ -30,11 +31,6 @@ def compute_weight(Y, classes):
     class_weights = {i: (num_samples / (n_classes * num_bin[i])) for i in range(n_classes)}
     return class_weights
 
-# load_path,activation_function='relu', bn_momentum=0.99, bias=False, dropout_rate=0.5, dropout_rate_dense=0.0,
-#              eps=1.1e-5, kernel_size=5, l2_reg=0.0, l2_reg_dense=0.0,lr=0.0012843784, lr_decay=0.0001132885, maxnorm=10000.,
-#              padding='valid', random_seed=1, subsam=2, num_filt=(8, 4), num_dense=20,FIR_train=False,trainable=True
-
-
 def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_compare/weights.0148-0.8902.hdf5',lr=0.0012843784,
                       model_json=None,
                       lr_decay=0.0001132885,num_dense1=20,
@@ -48,11 +44,11 @@ def heartnet_transfer(load_path='/media/taufiq/Data/heart_sound/interspeech_comp
         model.summary()
     plot_model(model,'before.png',show_shapes=True,show_layer_names=True)
     x = model.layers[-4].output
-    x = Dense(num_dense1,activation='relu',kernel_initializer=initializers.he_uniform(seed=1)) (x)
-    x = Dropout(rate=dropout_rate,seed=1) (x)
-    if num_dense2:
-        x = Dense(num_dense2, activation='relu',kernel_initializer=initializers.he_normal(seed=1))(x)
-        x = Dropout(rate=dropout_rate, seed=1)(x)
+    if num_dense1:
+        x = Dense(num_dense1,activation='relu',kernel_initializer=initializers.he_uniform(seed=1)) (x)
+        x = Dropout(rate=dropout_rate,seed=1) (x)
+    x = Dense(num_dense2, activation='relu',kernel_initializer=initializers.he_normal(seed=1))(x)
+    x = Dropout(rate=dropout_rate, seed=1)(x)
     output = Dense(3,activation='softmax')(x)
     model = Model(inputs=model.input,outputs=output)
     plot_model(model, 'after.png',show_shapes=True,show_layer_names=True)
@@ -84,8 +80,8 @@ class log_UAR(Callback):
                     continue
                 # ~ print "part {} start {} stop {}".format(s,start_idx,start_idx+int(s)-1)
 
-                temp_ = self.y_val_[start_idx:start_idx + int(s) - 1]
-                temp = y_pred[start_idx:start_idx + int(s) - 1]
+                temp_ = self.y_val_[start_idx:start_idx + int(s)]
+                temp = y_pred[start_idx:start_idx + int(s)]
 
                 if (sum(temp == 0) > sum(temp == 1)) and (sum(temp == 0) > sum(temp == 2)):
                     pred.append(0)
@@ -130,6 +126,7 @@ if __name__ == '__main__':
 
     model_json = '/media/taufiq/Data1/heart_sound/models/fold1+compare 2018-04-17 22:03:55.445492/model.json'
     load_path= '/media/taufiq/Data1/heart_sound/models/fold1+compare 2018-04-17 22:03:55.445492/weights.0161-0.8362.hdf5'
+    exclude_file = 'exclude_compare'
     # lr = 0.00001
     lr = 0.0002332976
     num_dense1 = 239 #34,120,167,239,1239,650,788,422,598
@@ -138,11 +135,13 @@ if __name__ == '__main__':
     batch_size = 1024
     dropout_rate = 0.5
     trainable = True
-    addweights = True
+    addweights = False
 
     # res_thresh = .5
-    model = heartnet_transfer(load_path=load_path,lr=lr,num_dense1=num_dense1,num_dense2=num_dense2,trainable=trainable,dropout_rate=dropout_rate)
-
+    model = heartnet_transfer(load_path=load_path,lr=lr,num_dense1=num_dense1,num_dense2=num_dense2,trainable=trainable,dropout_rate=dropout_rate,model_json=model_json)
+    model_json = model.to_json()
+    with open(model_dir + log_name + "/model.json", "w") as json_file:
+        json_file.write(model_json)
     ###### Load Data ######
 
     feat = tables.open_file(fold_dir + foldname + '.mat')
@@ -153,10 +152,18 @@ if __name__ == '__main__':
     train_parts = feat.root.train_parts[0, :]
     val_parts = feat.root.val_parts[0, :]
 
-    ###### Create file index ########
+    ###### Get list for exclusion ########
 
+    eng = matlab.engine.start_matlab()
+    excl = eng.load(os.path.join(fold_dir, exclude_file+'.mat'))
+    eng.quit()
+    excl1 = excl['excludes1']
+    excl2 = excl['excludes2']
 
+    # convert to indices
 
+    excl1 = [int(each.split('_')[-1].split('.')[0]) for each in excl1]
+    excl2 = [int(each.split('_')[-1].split('.')[0]) for each in excl2]
 
     ############### Reshaping ############
 
@@ -164,20 +171,30 @@ if __name__ == '__main__':
     y_train = to_categorical(y_train,num_classes=3)
     y_val = to_categorical(y_val,num_classes=3)
 
+    ####### Exclude permanent excludes #######
+
+    start_idx = 0
+    drop_idx = []
+    for idx, s in enumerate(train_parts):
+        if idx in excl1:
+            drop_idx.append(np.r_[start_idx:start_idx + int(s)])
+        start_idx = start_idx + int(s)
+    drop_idx = np.hstack(drop_idx)
+    x_train = np.delete(x_train, drop_idx, axis=0)
+    y_train = np.delete(y_train, drop_idx, axis=0)
+
     ### Callbacks ###
-    csv_logger = CSVLogger(log_dir + log_name + '/training.csv')
     modelcheckpnt = ModelCheckpoint(filepath=checkpoint_name,
-                                    monitor='val_acc', save_best_only=True, mode='max')
+                                    monitor='val_acc', save_best_only=False, mode='max')
     tensbd = TensorBoard(log_dir=log_dir + log_name,
-                         batch_size=batch_size,
-                         # histogram_freq=100,
+                         batch_size=batch_size, histogram_freq=50,
+                         write_grads=True,
                          # embeddings_freq=99,
                          # embeddings_layer_names=embedding_layer_names,
                          # embeddings_data=x_val,
                          # embeddings_metadata=metadata_file,
                          write_images=False)
-    print(np.sum(y_train,axis=-2))
-    print(np.sum(y_val, axis=-2))
+    csv_logger = CSVLogger(log_dir + log_name + '/training.csv')
 
     ### Data Generator ###
 
@@ -189,19 +206,13 @@ if __name__ == '__main__':
                                  # samplewise_center=True,
                                  # samplewise_std_normalization=True,
                                  )
-    valgen = AudioDataGenerator(
-                                 # fill_mode='reflect',
-                                 # featurewise_center=True,
-                                 # zoom_range=.2,
-                                 # zca_whitening=True,
-                                 # samplewise_center=True,
-                                 # samplewise_std_normalization=True,
-                                 )
     datagen.fit(x_train)
-    valgen.fit(x_val)
+
     ### Train ###
+
     class_weights=compute_weight(y_train,range(3))
     print(class_weights)
+
     if addweights:
         model.fit_generator(datagen.flow(x_train,y_train,batch_size,shuffle=True,seed=1),
                             steps_per_epoch=len(x_train)/batch_size,
@@ -213,43 +224,21 @@ if __name__ == '__main__':
                             callbacks=[modelcheckpnt,
                                        log_UAR(x_val, y_val, val_parts),
                                        tensbd, csv_logger],
-                            validation_data=valgen.flow(x_val,y_val,batch_size,shuffle=True,seed=1))
+                            validation_data=(x_val,y_val))
+    else:
+        model.fit_generator(datagen.flow(x_train,y_train,batch_size,shuffle=True,seed=1),
+                            steps_per_epoch=len(x_train)/batch_size,
+                            use_multiprocessing=True,
+                            epochs=epochs,
+                            verbose=2,
+                            shuffle=True,
+                            # class_weight=class_weights,
+                            callbacks=[modelcheckpnt,
+                                       log_UAR(x_val, y_val, val_parts),
+                                       tensbd, csv_logger],
+                            validation_data=(x_val,y_val))
 
     ###### Results #####
-
-    y_pred = model.predict(x_val, verbose=0)
-    y_pred = np.argmax(y_pred,axis=-1)
-    y_val = np.transpose(np.argmax(y_val,axis=-1))
-    true = []
-    pred = []
-    start_idx = 0
-    for s in val_parts:
-
-        if not s:  ## for e00032 in validation0 there was no cardiac cycle
-            continue
-        # ~ print "part {} start {} stop {}".format(s,start_idx,start_idx+int(s)-1)
-
-        temp_ = y_val[start_idx:start_idx + int(s) - 1]
-        temp = y_pred[start_idx:start_idx + int(s) - 1]
-
-        if (sum(temp==0) > sum(temp==1)) and  (sum(temp==0) > sum(temp==2)):
-            pred.append(0)
-        elif (sum(temp==2) > sum(temp==1)) and  (sum(temp==2) > sum(temp==0)):
-            pred.append(2)
-        else:
-            pred.append(1)
-
-        if (sum(temp_ == 0) > sum(temp_ == 1)) and (sum(temp_ == 0) > sum(temp_ == 2)):
-            true.append(0)
-        elif (sum(temp_ == 2) > sum(temp_ == 1)) and (sum(temp_ == 2) > sum(temp_ == 0)):
-            true.append(2)
-        else:
-            true.append(1)
-
-        start_idx = start_idx + int(s)
-    score = recall_score(y_pred=pred, y_true=true, average='macro')
-    print(score)
-    print(confusion_matrix(y_true=true,y_pred=pred))
 
     ##### log results #####
     df = pd.read_csv(results_path)
